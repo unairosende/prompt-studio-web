@@ -27,7 +27,7 @@ Craft professional AI image prompts with 100+ curated photography presets. Selec
 ## Quick Start
 
 ### Use online
-Visit the [live version](https://yourusername.github.io/prompt-studio/) — no installation needed.
+Visit the [live version](https://unairosende.github.io/prompt-studio-web/) — no installation needed.
 
 ### Run locally
 ```bash
