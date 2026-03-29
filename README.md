@@ -4,7 +4,7 @@
 
 Craft professional AI image prompts with 100+ curated photography presets. Select cameras, lenses, lighting, film stocks, and styles — then let AI expand your ideas into detailed, production-ready prompts.
 
-🔗 **[Try it live →](https://yourusername.github.io/prompt-studio/)**
+🔗 **[Try it live →](https://unairosende.github.io/prompt-studio-web/)**
 
 ---
 
