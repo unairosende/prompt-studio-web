@@ -206,17 +206,6 @@ textarea#editor::placeholder{color:#444;font-style:italic}
 
   <!-- IMAGE MODE -->
   <div id="img-controls">
-    <div class="ar-bar">
-      <span class="ar-label">Aspect Ratio:</span>
-      <button class="ar-btn" data-ar="">Any</button>
-      <button class="ar-btn" data-ar="1:1">1:1</button>
-      <button class="ar-btn" data-ar="4:3">4:3</button>
-      <button class="ar-btn" data-ar="3:2">3:2</button>
-      <button class="ar-btn" data-ar="16:9">16:9</button>
-      <button class="ar-btn" data-ar="21:9">21:9</button>
-      <button class="ar-btn" data-ar="9:16">9:16</button>
-      <button class="ar-btn" data-ar="3:4">3:4</button>
-    </div>
     <div class="gen-bar" id="gen-bar"><span class="gen-label">Target AI:</span></div>
     <div class="gen-params hidden" id="gen-params"></div>
   </div>
@@ -245,11 +234,24 @@ textarea#editor::placeholder{color:#444;font-style:italic}
     <div class="history-items" id="history-items"></div>
   </div>
 
+  <!-- Aspect Ratio — shared, always visible below prompt -->
+  <div class="ar-bar" style="margin-top:10px" id="img-ar-bar">
+    <span class="ar-label">Aspect Ratio:</span>
+    <button class="ar-btn" data-ar="">Any</button>
+    <button class="ar-btn" data-ar="1:1">1:1</button>
+    <button class="ar-btn" data-ar="4:3">4:3</button>
+    <button class="ar-btn" data-ar="3:2">3:2</button>
+    <button class="ar-btn" data-ar="16:9">16:9</button>
+    <button class="ar-btn" data-ar="21:9">21:9</button>
+    <button class="ar-btn" data-ar="9:16">9:16</button>
+    <button class="ar-btn" data-ar="3:4">3:4</button>
+  </div>
+
   <!-- VIDEO SECTIONS (shown below prompt when in video mode) -->
   <div id="vid-sections" class="hidden">
 
-    <!-- Aspect Ratio -->
-    <div class="ar-bar" style="margin-top:10px">
+    <!-- Aspect Ratio (video replaces image one) -->
+    <div class="ar-bar" id="vid-ar-bar">
       <span class="ar-label">Aspect:</span>
       <button class="ar-btn" data-viar="">Any</button>
       <button class="ar-btn" data-viar="16:9">16:9</button>
@@ -546,6 +548,8 @@ function setMode(m){
   $("#img-controls").classList.toggle("hidden",isVid);
   $("#vid-controls").classList.toggle("hidden",!isVid);
   $("#vid-sections").classList.toggle("hidden",!isVid);
+  $("#img-ar-bar").classList.toggle("hidden",isVid);
+  $("#vid-ar-bar").classList.toggle("hidden",!isVid);
   $("#editor-wrap").classList.toggle("video-mode",isVid);
   editor.placeholder=isVid?"Describe your video scene...":"Describe your image idea...";
   save();
