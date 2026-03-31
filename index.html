@@ -4,358 +4,676 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<title>Prompt Studio v2.4 - Full Feature Studio</title>
+<title>Prompt Studio v2 - AI Prompt Crafter</title>
+<meta name="description" content="Craft professional AI image & video generation prompts. Free, open-source.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* USING YOUR ORIGINAL CSS FOR THE PROFESSIONAL LOOK */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-button,input,select,textarea{-webkit-appearance:none!important;appearance:none!important;font-family:inherit;background-color:#111118;color:#c8c8d0;border:1px solid #2a2a36;border-radius:7px;font-size:12px;outline:none}
+button,input,select,textarea{-webkit-appearance:none!important;-moz-appearance:none!important;appearance:none!important;font-family:inherit;background-color:#111118;color:#c8c8d0;border:1px solid #2a2a36;border-radius:7px;font-size:12px;outline:none}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;cursor:pointer}
+select option{background-color:#111118;color:#c8c8d0}
+html{scroll-behavior:smooth}
 body{background-color:#0a0a0f;color:#e0e0e8;font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(120,60,160,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(60,120,180,.05) 0%,transparent 60%)}
-
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-8px);background-color:rgba(240,166,202,.15);border:1px solid rgba(240,166,202,.3);border-radius:10px;padding:8px 24px;color:#f0a6ca;font-size:13px;font-weight:500;z-index:200;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:all .25s ease}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 .container{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:32px 24px 60px}
-.grid{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
+.header{text-align:center;margin-bottom:20px;animation:fadeUp .6s ease}
+.header-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:4px}
+.header-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#f0a6ca,#a0d2db);box-shadow:0 0 16px rgba(240,166,202,.5);animation:pulse-glow 3s ease-in-out infinite}
+.header h1{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#f0a6ca 0%,#a0d2db 50%,#d4a5f5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{font-size:12px;color:#666;font-weight:300;letter-spacing:.08em}
+.header-actions{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.welcome{background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:12px;padding:18px 22px;margin-bottom:20px;animation:fadeUp .6s .1s ease both;position:relative}
+.welcome-close{position:absolute;top:10px;right:12px;background-color:transparent!important;border:none!important;color:#444;font-size:18px;cursor:pointer;line-height:1;padding:4px}
+.welcome-close:hover{color:#f0a6ca}
+.welcome h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#e0e0e8;margin-bottom:8px}
+.welcome p{font-size:11px;color:#666;line-height:1.7;margin-bottom:6px}
+.welcome a{color:#a0d2db;text-decoration:none}
+.welcome.hidden{display:none}
+.grid{display:grid;grid-template-columns:1fr 420px;gap:16px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
-
-/* Header */
-.header{text-align:center;margin-bottom:20px}
-.header h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#f0a6ca 0%,#a0d2db 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(240,166,202,0.15);border:1px solid rgba(240,166,202,0.3);border-radius:10px;padding:8px 24px;color:#f0a6ca;font-size:13px;z-index:2000;backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:0.25s}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(10px)}
-
-/* Primary Toolbar at Top */
-.toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;border:1px solid #1e1e2a}
-.btn{padding:6px 14px;border-radius:7px;border:1px solid #2a2a36;background:transparent;color:#777;font-size:11px;font-weight:500;cursor:pointer;transition:0.15s}
-.btn:hover{background:rgba(255,255,255,0.05);color:#c8c8d0}
-.btn.accent{background:rgba(240,166,202,0.08)!important;border-color:rgba(240,166,202,0.2);color:#f0a6ca}
-.btn.danger:hover{color:#ff7777;border-color:rgba(255,100,100,0.3)}
-.word-count{margin-left:auto;font-size:10px;color:#555;font-family:'JetBrains Mono'}
-
+.toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.word-count{margin-left:auto;font-size:10px;color:#666;font-family:'JetBrains Mono',monospace}
+.btn{padding:6px 14px;border-radius:7px;border:1px solid #2a2a36;background-color:transparent!important;color:#777;font-size:11px;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .15s;letter-spacing:.01em}
+.btn:hover{background-color:rgba(255,255,255,.04)!important;border-color:#3a3a46;color:#c8c8d0}
+.btn.accent{background-color:rgba(240,166,202,.08)!important;border-color:rgba(240,166,202,.2);color:#f0a6ca}
+.btn.accent:hover{background-color:rgba(240,166,202,.15)!important;border-color:rgba(240,166,202,.4)}
+.btn.danger:hover{background-color:rgba(255,100,100,.1)!important;border-color:rgba(255,100,100,.3);color:#ff7777}
+.btn.small{padding:4px 9px;font-size:10px}
+.btn.active-gen{background-color:rgba(160,210,219,.12)!important;border-color:rgba(160,210,219,.3);color:#a0d2db}
+.btn-loading{background:linear-gradient(90deg,rgba(240,166,202,.08) 0%,rgba(240,166,202,.2) 50%,rgba(240,166,202,.08) 100%)!important;background-size:200px 100%!important;animation:shimmer 1.5s infinite linear!important;pointer-events:none!important}
+/* Mode toggle */
+.mode-toggle{display:flex;gap:0;margin-bottom:12px;background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:9px;padding:3px;width:fit-content}
+.mode-btn{padding:6px 20px;border-radius:6px;border:none!important;background-color:transparent!important;color:#555;font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.mode-btn.active-img{background-color:rgba(240,166,202,.12)!important;color:#f0a6ca}
+.mode-btn.active-vid{background-color:rgba(100,180,255,.12)!important;color:#64b4ff}
+/* Aspect ratio */
+.ar-bar{display:flex;align-items:center;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.ar-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
+.ar-btn{padding:4px 9px;border-radius:6px;border:1px solid #2a2a36;background-color:transparent!important;color:#555;font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s}
+.ar-btn:hover{border-color:#3a3a46;color:#c8c8d0}
+.ar-btn.active{background-color:rgba(160,210,219,.1)!important;border-color:rgba(160,210,219,.3);color:#a0d2db}
+/* Generator bar */
+.gen-bar{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.gen-bar .gen-label,.vid-model-bar .gen-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
+.gen-params{background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.gen-params.hidden{display:none!important}
+.gen-params label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.06em}
+.gen-params input,.gen-params select{width:80px;padding:5px 8px;font-size:11px}
+.gen-params textarea{width:100%;min-height:50px;padding:6px 8px;font-size:11px;resize:vertical}
 /* Editor */
-.editor-wrap{position:relative;background:#111118;border-radius:12px;border:1px solid #1e1e2a;overflow:hidden;margin-bottom:16px}
-.line-nums{position:absolute;top:0;left:0;bottom:0;width:34px;background:#0d0d14;border-right:1px solid #1a1a24;display:flex;flex-direction:column;padding-top:16px;align-items:center;color:#333;font-size:9px}
-textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;background:transparent;border:none;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:20px;color:#c8c8d0}
-
+.editor-wrap{position:relative;background-color:#111118;border-radius:12px;border:1px solid #1e1e2a;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.03);transition:border-color .3s}
+.editor-wrap.loading{border-color:rgba(240,166,202,.2)}
+.editor-wrap.video-mode{border-color:rgba(100,180,255,.15)}
+.line-nums{position:absolute;top:0;left:0;bottom:0;width:34px;background-color:#0d0d14;border-right:1px solid #1a1a24;display:flex;flex-direction:column;padding-top:16px;align-items:center;gap:1px;overflow:hidden}
+.line-nums span{font-size:9px;color:#333;font-family:'JetBrains Mono',monospace;line-height:20px}
+textarea#editor{width:100%;min-height:160px;padding:16px 16px 16px 44px;background-color:transparent!important;border:none!important;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:20px;color:#c8c8d0;caret-color:#f0a6ca;border-radius:0!important}
+textarea#editor::placeholder{color:#444;font-style:italic}
+.editor-wrap.loading textarea{opacity:.5}
 /* Panels */
-.panel{background:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:12px;margin-bottom:12px}
-.panel-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;display:block}
-
-/* Video Sections */
-.vid-section{background:rgba(100,180,255,0.02);border:1px solid #1a1a26;border-radius:9px;padding:12px;margin-bottom:10px}
-.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.vid-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.vid-col label{font-size:8px;color:#444;text-transform:uppercase;margin-bottom:4px;display:block}
-
-/* Sidebars & Tabs */
-.cat-tabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
-.cat-tab{padding:5px 12px;border-radius:6px;background:transparent;border:1px solid #1e1e2a;color:#555;font-size:10px;cursor:pointer;white-space:nowrap}
-.cat-tab.active{border-color:rgba(160,210,219,0.3);color:#a0d2db}
-.preset-list{max-height:350px;overflow-y:auto}
-.preset-item{display:block;width:100%;text-align:left;padding:8px;margin-bottom:4px;background:#111118;border:1px solid #1e1e2a;border-radius:6px;cursor:pointer}
-.preset-item.added{border-color:rgba(141,214,160,0.3);background:rgba(141,214,160,0.02)}
-
+.panel{background-color:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:10px 12px;margin-bottom:10px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.panel-label{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.panel-count{font-size:9px;color:#666;font-family:'JetBrains Mono',monospace}
 .tags{display:flex;flex-wrap:wrap;gap:5px}
-.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(255,255,255,0.03);border:1px solid #1e1e2a;border-radius:6px;font-size:10px}
-.tag-cat{font-size:7px;color:#555;text-transform:uppercase}
-
-.chip-group{display:flex;gap:4px;flex-wrap:wrap}
-.chip{padding:4px 8px;border-radius:5px;border:1px solid #2a2a36;color:#555;font-size:9px;cursor:pointer}
-.chip.c-active{background:rgba(100,180,255,0.1);border-color:#64b4ff;color:#64b4ff}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;font-size:10px;font-weight:500;animation:fadeIn .2s ease}
+.tag-cat{font-size:7px;opacity:.6;text-transform:uppercase;letter-spacing:.05em}
+.tag-label{color:#c8c8d0;font-family:'JetBrains Mono',monospace;font-size:9px}
+.tag-rm{background-color:transparent!important;border:none!important;color:inherit;opacity:.5;cursor:pointer;font-size:13px;padding:0 2px;line-height:1;border-radius:0!important}
+.tag-rm:hover{opacity:1;color:#ff7777}
+.empty-hint{padding:12px;text-align:center;color:#444;font-size:11px;font-style:italic}
+/* Camera Builder */
+.cam-builder{margin-bottom:10px}
+.cam-row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.cam-col{flex:1;min-width:90px;position:relative}
+.cam-label{font-size:8px;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;display:block}
+.cam-builder select{width:100%;padding:7px 24px 7px 8px;font-size:10px}
+.cam-custom{width:100%;padding:6px 8px;font-size:10px;background-image:none!important}
+/* Tooltips */
+.tip-icon{display:inline-block;width:14px;height:14px;border-radius:50%;background-color:rgba(160,210,219,.1);color:#a0d2db;font-size:8px;text-align:center;line-height:14px;cursor:help;margin-left:4px;vertical-align:middle;position:relative}
+.tip-icon:hover .tip-text,.tip-icon:focus .tip-text{display:block}
+.tip-text{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background-color:#1a1a28;border:1px solid #2a2a3a;border-radius:6px;padding:6px 10px;font-size:10px;color:#c8c8d0;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.4);font-family:'Outfit',sans-serif;font-weight:400;max-width:220px;white-space:normal;line-height:1.4}
+/* Cat tabs */
+.cat-tabs{display:flex;gap:3px;padding:6px 0;overflow-x:auto;scrollbar-width:none;margin-bottom:6px}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{flex-shrink:0;padding:4px 9px;border-radius:6px;border:1px solid transparent;background-color:transparent!important;color:#666;font-size:10px;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
+.cat-tab:hover{color:#999}
+.search-bar{margin-bottom:6px}
+.search-bar input{width:100%;background-color:#111118!important;border:1px solid #2a2a36;padding:7px 10px;font-size:11px}
+.search-bar input::placeholder{color:#444}
+.preset-list{max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a2a36 transparent;margin-bottom:6px}
+.preset-item{display:block;width:100%;text-align:left;padding:8px 10px;margin-bottom:3px;background-color:#111118!important;border:1px solid #1e1e2a;border-radius:7px;cursor:pointer;transition:all .15s;color:#c8c8d0;font-family:'Outfit',sans-serif;font-size:12px;line-height:normal}
+.preset-item:hover{background-color:rgba(240,166,202,.06)!important;border-color:rgba(240,166,202,.2)}
+.preset-item.added{background-color:rgba(140,214,160,.08)!important;border-color:rgba(140,214,160,.2)}
+.preset-item.added:hover{background-color:rgba(255,100,100,.06)!important;border-color:rgba(255,100,100,.2)}
+.preset-item-top{display:flex;align-items:center;justify-content:space-between}
+.preset-item-label{font-size:11px;font-weight:500;color:#e0e0e8}
+.preset-check{font-size:9px;color:#8dd6a0;font-weight:500}
+.preset-item-value{font-size:9px;color:#555;font-family:'JetBrains Mono',monospace;line-height:1.3;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.custom-wrap{display:flex;gap:5px;padding-top:6px;border-top:1px solid #1e1e2a}
+.custom-wrap input{flex:1;min-width:0;background-color:#111118!important;padding:6px 8px;font-size:10px}
+.custom-wrap input::placeholder{color:#444}
+/* History */
+.history-drawer{background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:9px;margin-top:10px;overflow:hidden;transition:max-height .3s ease}
+.history-drawer.collapsed{max-height:36px}
+.history-drawer .history-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer}
+.history-drawer .history-header:hover{background-color:rgba(255,255,255,.02)}
+.history-items{max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a2a36 transparent}
+.history-item{padding:8px 12px;border-top:1px solid #1a1a24;cursor:pointer;transition:background-color .15s;font-size:10px;color:#888;font-family:'JetBrains Mono',monospace;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-item:hover{background-color:rgba(240,166,202,.04);color:#c8c8d0}
+/* Settings overlay */
+.settings-overlay{position:fixed;inset:0;z-index:150;background-color:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .2s}
+.settings-overlay.show{opacity:1;pointer-events:auto}
+.settings-panel{background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:14px;padding:22px;width:100%;max-width:420px;box-shadow:0 16px 64px rgba(0,0,0,.5)}
+.settings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1a1a24}
+.settings-close{background-color:transparent!important;border:none!important;color:#666;font-size:22px;cursor:pointer;padding:0 4px;line-height:1;border-radius:0!important}
+.settings-close:hover{color:#ff7777}
+.settings-group{margin-bottom:14px}
+.settings-label{display:block;font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:5px}
+.settings-input{width:100%;background-color:#111118!important;padding:7px 10px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.settings-select{width:100%;background-color:#111118!important;padding:7px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.settings-hint{display:block;font-size:9px;color:#666;margin-top:3px;line-height:1.4}
+.settings-key-wrap{display:flex;gap:5px}.settings-key-wrap input{flex:1}
+.settings-banner{background-color:rgba(140,214,160,.06);border:1px solid rgba(140,214,160,.15);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.settings-banner-title{font-size:11px;font-weight:600;color:#8dd6a0;margin-bottom:4px}
+.settings-banner-text{font-size:10px;color:#999;line-height:1.6}
+.settings-banner-text a{color:#a0d2db;text-decoration:none}
+.status-ok{color:#8dd6a0}.status-err{color:#ff7777}.status-warn{color:#f7c97e}
+/* === VIDEO PANEL === */
+.vid-section{background-color:#0d0d14;border:1px solid #1a1a26;border-radius:9px;padding:10px 12px;margin-bottom:8px}
+.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.vid-section-title::before{content:'';display:inline-block;width:3px;height:10px;background:linear-gradient(180deg,#64b4ff,#a0d2db);border-radius:2px}
+.vid-row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:flex-start}
+.vid-col{flex:1;min-width:80px}
+.vid-col label,.vid-col .cam-label{font-size:8px;color:#444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;display:block}
+.vid-col select{width:100%;padding:6px 24px 6px 8px;font-size:10px}
+/* D-pad */
+.dpad-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dpad-row{display:flex;gap:2px}
+.dpad-btn{width:28px;height:28px;border-radius:5px;border:1px solid #2a2a36;background-color:#111118!important;color:#555;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;line-height:1}
+.dpad-btn:hover{border-color:#3a3a46;color:#a0d2db;background-color:rgba(160,210,219,.08)!important}
+.dpad-btn.d-active{background-color:rgba(100,180,255,.15)!important;border-color:rgba(100,180,255,.4);color:#64b4ff}
+.dpad-center-cell{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;border:1px solid #1a1a26;background-color:rgba(255,255,255,.01)!important;cursor:default}
+.dpad-clr{width:28px;height:28px;border-radius:5px;border:1px solid #2a2a36;background-color:#111118!important;color:#333;font-size:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:all .15s}
+.dpad-clr:hover{color:#f0a6ca;border-color:rgba(240,166,202,.3)}
+/* Motion slider */
+.vid-slider-wrap{display:flex;align-items:center;gap:8px;margin-top:3px}
+.vid-slider-wrap input[type="range"]{flex:1;background:transparent;border:none!important;padding:0;height:18px;cursor:pointer;accent-color:#64b4ff}
+.vid-slider-wrap span{font-size:10px;color:#888;min-width:20px;font-family:'JetBrains Mono',monospace}
+/* Chip group */
+.chip-group{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.chip{padding:4px 8px;border-radius:5px;border:1px solid #2a2a36;background-color:transparent!important;color:#555;font-size:9px;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:#3a3a46;color:#c8c8d0}
+.chip.c-active{background-color:rgba(100,180,255,.1)!important;border-color:rgba(100,180,255,.35);color:#64b4ff}
+.chip.c-lock{border-color:rgba(247,201,126,.3);color:#f7c97e;background-color:rgba(247,201,126,.06)!important}
+.chip.c-lock.c-active{background-color:rgba(247,201,126,.18)!important;border-color:rgba(247,201,126,.6)}
+/* vid model bar */
+.vid-model-bar{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .hidden{display:none!important}
-
-/* Settings Overlay */
-.settings-overlay{position:fixed;inset:0;z-index:2500;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center}
+/* Footer & scrollbar */
+.footer{text-align:center;padding:20px;color:#444;font-size:10px;border-top:1px solid #1a1a24;margin-top:24px}
+.footer a{color:#a0d2db;text-decoration:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2a2a36;border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 12px rgba(240,166,202,.4)}50%{box-shadow:0 0 20px rgba(240,166,202,.7)}}
+@keyframes shimmer{0%{background-position:-200px 0}100%{background-position:200px 0}}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="container">
-  <div class="header">
-    <h1>PROMPT STUDIO v2.4</h1>
-    <div style="display:flex; justify-content:center; gap:8px; margin-top:10px">
-      <button class="btn" id="btn-settings">Settings</button>
-      <button class="btn" id="btn-history-toggle">History</button>
-    </div>
+<div class="header">
+  <div class="header-row"><div class="header-dot"></div><h1>PROMPT STUDIO v2</h1></div>
+  <p>CRAFT . BEAUTIFY . CREATE</p>
+  <div class="header-actions"><button class="btn" id="btn-settings">Settings</button><button class="btn" id="btn-history-toggle">History</button></div>
+</div>
+<div class="welcome" id="welcome">
+  <button class="welcome-close" id="welcome-close">x</button>
+  <h2>Welcome to Prompt Studio v2</h2>
+  <p>Build professional AI image &amp; video prompts using curated presets and AI-powered expansion.</p>
+  <p>The <strong style="color:#f0a6ca">Beautify</strong> button uses AI to expand your ideas. Get a free Gemini key at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> and paste it in Settings.</p>
+</div>
+<div class="grid">
+<div>
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active-img" id="btn-mode-img">▣ Image</button>
+    <button class="mode-btn" id="btn-mode-vid">▶ Video</button>
   </div>
 
-  <div class="grid">
-    <div>
-      <div style="display:flex; gap:10px; margin-bottom:15px">
-        <button class="btn" id="btn-mode-img">▣ Image Mode</button>
-        <button class="btn" id="btn-mode-vid">▶ Video Mode</button>
-      </div>
+  <!-- IMAGE MODE -->
+  <div id="img-controls">
+    <div class="ar-bar">
+      <span class="ar-label">Aspect Ratio:</span>
+      <button class="ar-btn" data-ar="">Any</button>
+      <button class="ar-btn" data-ar="1:1">1:1</button>
+      <button class="ar-btn" data-ar="4:3">4:3</button>
+      <button class="ar-btn" data-ar="3:2">3:2</button>
+      <button class="ar-btn" data-ar="16:9">16:9</button>
+      <button class="ar-btn" data-ar="21:9">21:9</button>
+      <button class="ar-btn" data-ar="9:16">9:16</button>
+      <button class="ar-btn" data-ar="3:4">3:4</button>
+    </div>
+    <div class="gen-bar" id="gen-bar"><span class="gen-label">Target AI:</span></div>
+    <div class="gen-params hidden" id="gen-params"></div>
+  </div>
 
-      <div id="img-options-bar" style="margin-bottom:12px; display:flex; gap:15px; align-items:center">
-        <div style="display:flex; align-items:center; gap:6px">
-          <span style="font-size:9px; color:#555">ASPECT:</span>
-          <select id="img-ar-select"><option value="">Any</option><option>1:1</option><option>4:3</option><option>3:2</option><option>16:9</option><option>9:16</option></select>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px">
-          <span style="font-size:9px; color:#555">TARGET AI:</span>
-          <div id="gen-bar" style="display:flex; gap:4px"></div>
-        </div>
-      </div>
+  <!-- VIDEO MODE: placeholder (aspect ratio moved below prompt) -->
+  <div id="vid-controls" class="hidden"></div>
 
-      <div class="toolbar">
-        <button class="btn accent" id="btn-beautify">✦ Beautify</button>
-        <button class="btn" id="btn-json">JSON Export</button>
-        <button class="btn" id="btn-copy">Copy</button>
-        <button class="btn danger" id="btn-clear">Clear</button>
-        <span class="word-count" id="word-count">0w</span>
-      </div>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn accent" id="btn-beautify">Beautify</button>
+    <button class="btn" id="btn-json">JSON</button>
+    <button class="btn" id="btn-copy">Copy</button>
+    <button class="btn danger" id="btn-clear">Clear</button>
+    <span class="word-count" id="word-count">0w</span>
+  </div>
+  <div class="editor-wrap" id="editor-wrap">
+    <div class="line-nums" id="line-nums"></div>
+    <textarea id="editor" placeholder="Describe your scene..." spellcheck="false"></textarea>
+  </div>
+  <div class="panel" style="margin-top:10px">
+    <div class="panel-header"><span class="panel-label">Selected Presets</span><span class="panel-count" id="preset-count"></span></div>
+    <div class="tags" id="tags"><div class="empty-hint">Select presets or build a camera setup below.</div></div>
+  </div>
+  <div class="history-drawer collapsed" id="history-drawer">
+    <div class="history-header" id="history-header"><span class="panel-label">Prompt History</span><span style="font-size:10px;color:#555" id="history-count"></span></div>
+    <div class="history-items" id="history-items"></div>
+  </div>
 
-      <div class="editor-wrap">
-        <div class="line-nums" id="line-nums"></div>
-        <textarea id="editor" placeholder="Describe your scene idea..."></textarea>
-      </div>
+  <!-- VIDEO SECTIONS (shown below prompt when in video mode) -->
+  <div id="vid-sections" class="hidden">
 
-      <div id="vid-controls" class="hidden">
-        <div class="vid-section">
-          <div class="vid-section-title">Framing & Shot Size</div>
-          <div class="vid-row">
-            <div class="vid-col">
-              <label>Aspect Ratio</label>
-              <div class="chip-group">
-                <button class="chip" data-viar="16:9">16:9</button>
-                <button class="chip" data-viar="9:16">9:16</button>
-                <button class="chip" data-viar="1:1">1:1</button>
-                <button class="chip" data-viar="21:9">21:9</button>
-              </div>
-            </div>
-            <div class="vid-col">
-              <label>Shot Size</label>
-              <div class="chip-group">
-                <button class="chip" data-shot="extreme wide shot">EWS</button>
-                <button class="chip" data-shot="wide shot">WS</button>
-                <button class="chip" data-shot="medium shot">MS</button>
-                <button class="chip" data-shot="close-up">CU</button>
-                <button class="chip" data-shot="extreme close-up">ECU</button>
-              </div>
-            </div>
+    <!-- Aspect Ratio -->
+    <div class="ar-bar" style="margin-top:10px">
+      <span class="ar-label">Aspect:</span>
+      <button class="ar-btn" data-viar="">Any</button>
+      <button class="ar-btn" data-viar="16:9">16:9</button>
+      <button class="ar-btn" data-viar="9:16">9:16</button>
+      <button class="ar-btn" data-viar="1:1">1:1</button>
+      <button class="ar-btn" data-viar="4:3">4:3</button>
+      <button class="ar-btn" data-viar="21:9">21:9</button>
+    </div>
+
+    <!-- Framing -->
+    <div class="vid-section" style="margin-top:10px">
+      <div class="vid-section-title">Framing</div>
+      <div class="vid-row">
+        <div class="vid-col">
+          <label>Shot Size</label>
+          <div class="chip-group">
+            <button class="chip" data-shot="extreme wide shot">EWS</button>
+            <button class="chip" data-shot="wide shot">WS</button>
+            <button class="chip" data-shot="medium shot">MS</button>
+            <button class="chip" data-shot="close-up">CU</button>
+            <button class="chip" data-shot="extreme close-up">ECU</button>
           </div>
         </div>
-
-        <div class="vid-section">
-          <div class="vid-section-title">Camera Movement</div>
-          <div class="vid-row">
-            <div class="vid-col">
-              <label>Move Type</label>
-              <select id="vid-move-type" style="width:100%">
-                <option value="">-- None --</option>
-                <option>Pan</option><option>Tilt</option><option>Truck</option><option>Dolly</option><option>Zoom</option><option>Orbit</option>
-              </select>
-            </div>
-            <div class="vid-col">
-              <label>Stabilization</label>
-              <div class="chip-group">
-                <button class="chip" data-stab="handheld">Handheld</button>
-                <button class="chip" data-stab="steadicam">Steadicam</button>
-                <button class="chip" data-stab="gimbal">Gimbal</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="vid-section">
-          <div class="vid-section-title">Motion & Temporal</div>
-          <div class="vid-row">
-            <div class="vid-col">
-              <label>Duration</label>
-              <div class="chip-group">
-                <button class="chip" data-dur="3s">3s</button>
-                <button class="chip" data-dur="4s">4s</button>
-                <button class="chip" data-dur="5s">5s</button>
-                <button class="chip" data-dur="8s">8s</button>
-                <button class="chip" data-dur="10s">10s</button>
-                <button class="chip" data-dur="loop">Loop</button>
-              </div>
-            </div>
-            <div class="vid-col">
-              <label>Motion Intensity</label>
-              <input type="range" id="vid-motion" min="1" max="10" value="5" style="width:100%">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <span class="panel-label">Selected Tags</span>
-        <div id="tags" class="tags"><div class="empty-hint">Add tags from the sidebar to refine your prompt.</div></div>
-      </div>
-
-      <div class="panel hidden" id="history-panel">
-        <span class="panel-label">Recent History</span>
-        <div id="history-items"></div>
       </div>
     </div>
 
-    <div>
-      <div class="panel">
-        <span class="panel-label">Camera & Lens Builder</span>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px">
-          <select id="cam-brand"><option value="">Brand</option><option>Canon</option><option>Sony</option><option>Nikon</option><option>RED</option><option>ARRI</option></select>
-          <select id="cam-model"><option value="">Model</option></select>
-          <select id="lens-focal"><option value="">Focal</option><option>14mm</option><option>24mm</option><option>35mm</option><option>50mm</option><option>85mm</option></select>
-          <select id="lens-aperture"><option value="">Aperture</option><option>f/1.2</option><option>f/1.8</option><option>f/2.8</option><option>f/4.0</option><option>f/11</option></select>
+    <!-- Camera Movement -->
+    <div class="vid-section">
+      <div class="vid-section-title">Camera Movement</div>
+      <div class="vid-row">
+        <div class="vid-col" style="flex:2">
+          <label>Move Type</label>
+          <select id="vid-move-type">
+            <option value="">-- None --</option>
+            <optgroup label="Horizontal">
+              <option value="pan left">Pan Left (rotation)</option>
+              <option value="pan right">Pan Right (rotation)</option>
+              <option value="truck left">Truck Left (body)</option>
+              <option value="truck right">Truck Right (body)</option>
+            </optgroup>
+            <optgroup label="Vertical">
+              <option value="tilt up">Tilt Up</option>
+              <option value="tilt down">Tilt Down</option>
+              <option value="pedestal up">Pedestal Up</option>
+              <option value="pedestal down">Pedestal Down</option>
+            </optgroup>
+            <optgroup label="Depth">
+              <option value="dolly in">Dolly In</option>
+              <option value="dolly out">Dolly Out</option>
+              <option value="zoom in">Zoom In (lens)</option>
+              <option value="zoom out">Zoom Out (lens)</option>
+            </optgroup>
+            <optgroup label="Complex">
+              <option value="orbit left around subject">Orbit / Arc</option>
+              <option value="crane shot sweeping upward">Crane / Jib</option>
+              <option value="dolly zoom Vertigo effect">Dolly Zoom (Vertigo)</option>
+              <option value="whip pan transition">Whip Pan</option>
+              <option value="static locked-off shot, no camera movement">Static / Locked</option>
+            </optgroup>
+          </select>
         </div>
-        <button class="btn accent" style="width:100%" id="btn-cam-add">+ Add Setup to Tags</button>
+        <div class="vid-col">
+          <label>Stabilization</label>
+          <div class="chip-group">
+            <button class="chip" data-stab="handheld documentary wobble">Handheld</button>
+            <button class="chip" data-stab="steadicam smooth glide">Steadicam</button>
+            <button class="chip" data-stab="gimbal stabilized">Gimbal</button>
+          </div>
+        </div>
       </div>
-
-      <div id="cat-tabs" class="cat-tabs"></div>
-      <div class="panel" style="padding:0; overflow:hidden">
-        <input type="text" id="search" placeholder="Search across all presets..." style="width:100%; border:none; border-bottom:1px solid #1e1e2a; padding:12px; background:transparent">
-        <div id="preset-list" class="preset-list" style="padding:10px"></div>
-        <div style="padding:10px; border-top:1px solid #1e1e2a; display:flex; gap:6px">
-          <input type="text" id="custom-input" placeholder="Custom tag..." style="flex:1; padding:8px">
-          <button class="btn" id="btn-custom">Add</button>
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-top:4px">
+        <div>
+          <label class="cam-label" style="margin-bottom:4px">Direction</label>
+          <div class="dpad-wrap">
+            <div class="dpad-row">
+              <div class="dpad-center-cell"></div>
+              <button class="dpad-btn" data-dir="upward">↑</button>
+              <div class="dpad-center-cell"></div>
+            </div>
+            <div class="dpad-row">
+              <button class="dpad-btn" data-dir="to the left">←</button>
+              <button class="dpad-clr" id="dpad-clr">CLR</button>
+              <button class="dpad-btn" data-dir="to the right">→</button>
+            </div>
+            <div class="dpad-row">
+              <div class="dpad-center-cell"></div>
+              <button class="dpad-btn" data-dir="downward">↓</button>
+              <div class="dpad-center-cell"></div>
+            </div>
+            <div class="dpad-row" style="margin-top:2px">
+              <button class="dpad-btn" data-dir="diagonally left and forward" style="font-size:10px">↙</button>
+              <button class="dpad-btn" data-dir="pushing forward into the scene">⊙</button>
+              <button class="dpad-btn" data-dir="diagonally right and forward" style="font-size:10px">↘</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <label class="cam-label">Camera Speed</label>
+          <div class="chip-group">
+            <button class="chip" data-speed="slow deliberate camera movement">Slow</button>
+            <button class="chip" data-speed="medium-paced camera movement">Medium</button>
+            <button class="chip" data-speed="fast energetic camera movement">Fast</button>
+          </div>
+          <label class="cam-label" style="margin-top:8px">Lock Override</label>
+          <div class="chip-group">
+            <button class="chip c-lock" id="chip-lock-cam">Lock Camera</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Motion & Physics -->
+    <div class="vid-section">
+      <div class="vid-section-title">Motion &amp; Physics</div>
+      <div class="vid-row">
+        <div class="vid-col" style="flex:2">
+          <label>Motion Intensity (1–10)</label>
+          <div class="vid-slider-wrap">
+            <input type="range" id="vid-motion" min="1" max="10" value="5">
+            <span id="vid-motion-val">5</span>
+          </div>
+        </div>
+        <div class="vid-col">
+          <label>Subject Action</label>
+          <select id="vid-action">
+            <option value="">-- None --</option>
+            <option value="walking slowly">Walking</option>
+            <option value="running, sprinting">Sprinting</option>
+            <option value="floating, levitating">Floating</option>
+            <option value="melting slowly">Melting</option>
+            <option value="dissolving into particles">Dissolving</option>
+            <option value="exploding outward">Exploding</option>
+            <option value="morphing, transforming shape">Morphing</option>
+            <option value="dancing">Dancing</option>
+            <option value="falling">Falling</option>
+            <option value="spinning">Spinning</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Temporal & Pacing -->
+    <div class="vid-section">
+      <div class="vid-section-title">Temporal &amp; Pacing</div>
+      <div class="vid-row">
+        <div class="vid-col">
+          <label>Duration</label>
+          <div class="chip-group">
+            <button class="chip" data-dur="3 second clip">3s</button>
+            <button class="chip" data-dur="4 second clip">4s</button>
+            <button class="chip" data-dur="5 second clip">5s</button>
+            <button class="chip" data-dur="8 second clip">8s</button>
+            <button class="chip" data-dur="10 second clip">10s</button>
+            <button class="chip" data-dur="extended seamless loop">Loop</button>
+          </div>
+        </div>
+        <div class="vid-col">
+          <label>Frame Rate</label>
+          <div class="chip-group">
+            <button class="chip" data-fps="24fps cinematic">24fps</button>
+            <button class="chip" data-fps="30fps">30fps</button>
+            <button class="chip" data-fps="60fps smooth">60fps</button>
+          </div>
+        </div>
+      </div>
+      <div class="vid-row" style="margin-top:4px">
+        <div class="vid-col">
+          <label>Speed Style</label>
+          <div class="chip-group">
+            <button class="chip" data-spd="slow motion, elegant dreamlike movement">Slow Mo</button>
+            <button class="chip" data-spd="normal real-time speed">Normal</button>
+            <button class="chip" data-spd="time-lapse hyperlapse compressed time">Time-lapse</button>
+            <button class="chip" data-spd="reverse playback">Reverse</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /vid-sections -->
+</div>
+<div>
+  <!-- Camera Builder -->
+  <div class="panel cam-builder">
+    <div class="panel-header"><span class="panel-label">Camera &amp; Lens Builder</span></div>
+    <div class="cam-row">
+      <div class="cam-col"><span class="cam-label">Camera Brand</span><select id="cam-brand"><option value="">-- Select --</option><option>Canon</option><option>Sony</option><option>Nikon</option><option>Fujifilm</option><option>Hasselblad</option><option>Leica</option><option>Panasonic</option><option>RED</option><option>ARRI</option><option>Blackmagic</option></select></div>
+      <div class="cam-col"><span class="cam-label">Model</span><select id="cam-model"><option value="">--</option></select></div>
+    </div>
+    <div class="cam-row">
+      <div class="cam-col"><span class="cam-label">Lens Brand</span><select id="lens-brand"><option value="">-- Select --</option><option>Canon</option><option>Sony</option><option>Nikon</option><option>Sigma</option><option>Tamron</option><option>Zeiss</option><option>Leica</option><option>Voigtlander</option><option>Samyang</option><option>Tokina</option><option>Helios</option><option>Petzval</option></select></div>
+      <div class="cam-col">
+        <span class="cam-label">Focal Length <span class="tip-icon" tabindex="0">i<span class="tip-text" id="focal-tip">Select a focal length</span></span></span>
+        <select id="lens-focal"><option value="">--</option><option data-tip="Ultra-wide, dramatic perspective, landscapes">14mm</option><option data-tip="Ultra-wide, architecture, interiors">16mm</option><option data-tip="Wide angle, environmental portraits">20mm</option><option data-tip="Wide, street photography, reportage">24mm</option><option data-tip="Classic wide, documentary style">28mm</option><option data-tip="Versatile, street, close to human eye">35mm</option><option data-tip="Compact normal lens, discreet">40mm</option><option data-tip="Standard, natural perspective, classic">50mm</option><option data-tip="Short portrait, subtle compression">58mm</option><option data-tip="Portrait king, flattering face compression">85mm</option><option data-tip="Macro, extreme close-up detail">100mm</option><option data-tip="Portrait, beautiful bokeh separation">105mm</option><option data-tip="Telephoto portrait, dreamy compression">135mm</option><option data-tip="Telephoto, sports, wildlife, extreme bokeh">200mm</option><option data-tip="Super telephoto, wildlife, sports">300mm</option><option data-tip="Wide zoom, versatile landscapes">16-35mm</option><option data-tip="Standard zoom, all-rounder">24-70mm</option><option data-tip="Extended standard zoom">24-105mm</option><option data-tip="Telephoto zoom, sports, portraits">70-200mm</option><option data-tip="Macro, razor-thin focus plane">Macro 100mm</option><option data-tip="Controlled focus plane, miniature effect">Tilt-Shift</option><option data-tip="Cinematic widescreen, oval bokeh, flares">Anamorphic</option></select>
+      </div>
+      <div class="cam-col">
+        <span class="cam-label">Aperture <span class="tip-icon" tabindex="0">i<span class="tip-text" id="apt-tip">Select aperture</span></span></span>
+        <select id="lens-aperture"><option value="">--</option><option data-tip="Extreme shallow DOF, dreamy, low light king">f/0.95</option><option data-tip="Very shallow DOF, cinematic bokeh, premium">f/1.2</option><option data-tip="Shallow DOF, great bokeh, fast lens">f/1.4</option><option data-tip="Versatile shallow DOF, affordable fast lens">f/1.8</option><option data-tip="Moderate bokeh, good balance of sharpness">f/2.0</option><option data-tip="Sharp, good bokeh, pro zoom standard">f/2.8</option><option data-tip="Moderate depth, kit lens typical">f/3.5</option><option data-tip="Deep DOF begins, landscapes, architecture">f/4.0</option><option data-tip="Deep focus, sharp across frame">f/5.6</option><option data-tip="Sweet spot sharpness, landscapes">f/8.0</option><option data-tip="Deep DOF, everything in focus">f/11</option><option data-tip="Maximum depth, diffraction begins">f/16</option></select>
+      </div>
+    </div>
+    <div class="cam-row" style="gap:5px">
+      <input type="text" id="cam-custom" class="cam-custom" placeholder="Or type custom setup...">
+      <button class="btn accent small" id="btn-cam-add">+ Add</button>
+    </div>
+  </div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="search-bar"><input type="text" id="search" placeholder="Filter presets..."></div>
+  <div class="preset-list" id="preset-list"></div>
+  <div class="custom-wrap">
+    <input type="text" id="custom-input" placeholder="Custom parameter...">
+    <button class="btn accent small" id="btn-custom">+ Add</button>
   </div>
 </div>
+</div>
+<div class="footer">Prompt Studio v2 - <a href="https://github.com/unairosende/prompt-studio-web" target="_blank">GitHub</a></div>
+</div>
 
-<div class="settings-overlay" id="settings-overlay">
-  <div class="panel" style="width:420px; background:#0d0d14">
-    <span class="panel-label">Developer Settings</span>
-    <div style="display:flex; flex-direction:column; gap:12px">
-      <div>
-        <label style="font-size:8px; color:#555">PROVIDER</label>
-        <select id="s-provider" style="width:100%; padding:8px"><option value="google">Google Gemini</option><option value="openai">OpenAI</option><option value="openrouter">OpenRouter</option><option value="anthropic">Anthropic</option></select>
-      </div>
-      <div>
-        <label style="font-size:8px; color:#555">API KEY</label>
-        <input type="password" id="s-apikey" style="width:100%; padding:8px" placeholder="Paste your key here...">
-      </div>
-      <button class="btn accent" id="btn-save-settings" style="padding:10px">Save Configuration</button>
-      <button class="btn" id="btn-settings-close" style="padding:10px">Cancel</button>
+<!-- JSON Modal -->
+<div class="settings-overlay" id="json-overlay">
+<div class="settings-panel" style="max-width:560px">
+  <div class="settings-header"><span class="panel-label">JSON Output</span><button class="settings-close" id="btn-json-close">x</button></div>
+  <div id="json-loading" style="text-align:center;padding:20px;color:#555;font-size:11px;display:none">Generating JSON structure...</div>
+  <div id="json-content" style="display:none">
+    <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.1em">Structured Prompt</span>
+      <button class="btn small" id="btn-json-copy">Copy JSON</button>
     </div>
+    <pre id="json-output" style="background-color:#111118;border:1px solid #1e1e2a;border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#c8c8d0;overflow-x:auto;white-space:pre-wrap;line-height:1.6;max-height:400px;overflow-y:auto"></pre>
   </div>
+  <div id="json-error" style="display:none;background-color:rgba(255,100,100,.06);border:1px solid rgba(255,100,100,.2);border-radius:8px;padding:12px;font-size:10px;color:#ff7777"></div>
+</div>
+</div>
+
+<!-- Settings -->
+<div class="settings-overlay" id="settings-overlay">
+<div class="settings-panel">
+  <div class="settings-header"><span class="panel-label">Settings</span><button class="settings-close" id="btn-settings-close">x</button></div>
+  <div class="settings-banner" id="setup-banner"><div class="settings-banner-title">Free AI Beautify</div><div class="settings-banner-text">1. Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a><br>2. Create API Key (free, no card)<br>3. Paste below and Save</div></div>
+  <div class="settings-group"><label class="settings-label">AI Provider</label><select id="s-provider" class="settings-select"><option value="google" selected>Google Gemini (Free)</option><option value="openrouter">OpenRouter</option><option value="anthropic">Anthropic (Claude)</option><option value="openai">OpenAI (GPT)</option><option value="none">None (local only)</option></select><span class="settings-hint" id="s-provider-hint">Free, no credit card.</span></div>
+  <div class="settings-group" id="g-apikey"><label class="settings-label">API Key</label><div class="settings-key-wrap"><input type="password" id="s-apikey" class="settings-input" placeholder="AIza..." autocomplete="off"><button class="btn small" id="btn-toggle-key">Show</button></div></div>
+  <div class="settings-group" id="g-model"><label class="settings-label">Model</label><select id="s-model" class="settings-select"></select><span class="settings-hint" id="s-model-hint"></span></div>
+  <div class="settings-group hidden" id="g-baseurl"><label class="settings-label">Base URL</label><input type="text" id="s-baseurl" class="settings-input" placeholder="http://localhost:11434/v1"></div>
+  <div class="settings-group"><label class="settings-label">Max Tokens</label><input type="number" id="s-maxtokens" class="settings-input" value="1024" min="100" max="4000"></div>
+  <button class="btn accent" id="btn-save-settings" style="width:100%;padding:8px;margin-top:6px">Save</button>
+  <button class="btn" id="btn-test" style="width:100%;padding:8px;margin-top:4px">Test Connection</button>
+  <div id="test-result" class="settings-hint" style="margin-top:4px;text-align:center"></div>
+</div>
 </div>
 
 <script>
-/* --- RESTORING YOUR ORIGINAL FULL DATABASES --- */
-var GENERATORS = {
-  general:{label:"General", sysSuffix:""},
-  midjourney:{label:"Midjourney", sysSuffix:" Format for Midjourney. Use descriptive natural language."},
-  stablediffusion:{label:"Stable Diffusion", sysSuffix:" Format for SD. Use comma-separated tags."},
-  dalle:{label:"DALL-E", sysSuffix:" Format for DALL-E. Use natural descriptive sentences."},
-  flux:{label:"Flux", sysSuffix:" Format for Flux. Focus on high-realism and detail."}
-};
+// === IMAGE GENERATORS ===
+var GENERATORS={general:{label:"General",params:[],sysSuffix:""},midjourney:{label:"Midjourney",params:[{id:"mj-s",label:"Stylize",type:"range",min:0,max:1000,def:100},{id:"mj-c",label:"Chaos",type:"range",min:0,max:100,def:0},{id:"mj-v",label:"Version",type:"select",options:["","--v 7","--v 6.1","--v 6","--niji 6"],def:""}],sysSuffix:" Format for Midjourney. Do NOT include --ar, --s, --c, or --v flags in the text. Write vivid descriptive text only."},stablediffusion:{label:"Stable Diffusion",params:[{id:"sd-neg",label:"Negative Prompt",type:"textarea",def:""},{id:"sd-cfg",label:"CFG Scale",type:"range",min:1,max:30,def:7},{id:"sd-steps",label:"Steps",type:"range",min:10,max:150,def:30}],sysSuffix:" Format for Stable Diffusion. Use comma-separated descriptive tags. Include quality tags like masterpiece, best quality, highly detailed."},dalle:{label:"DALL-E",params:[],sysSuffix:" Format for DALL-E. Write in natural language, descriptive sentences. Avoid comma-separated tags."},flux:{label:"Flux",params:[],sysSuffix:" Format for Flux. Use rich descriptive natural language. Describe subject, environment, lighting, mood in flowing prose."},nanobanana:{label:"Nano Banana",params:[{id:"nb-style",label:"Style Ref",type:"select",options:["","photorealistic","illustration","3d render","concept art","pixel art"],def:""}],sysSuffix:" Format for Nano Banana. Clear descriptive language. Focus on subject, style, and mood."},ideogram:{label:"Ideogram",params:[{id:"id-style",label:"Style",type:"select",options:["","AUTO","GENERAL","REALISTIC","DESIGN","ANIME","RENDER_3D"],def:"AUTO"}],sysSuffix:" Format for Ideogram AI. Natural descriptive language. Be specific about composition and color palette."},firefly:{label:"Adobe Firefly",params:[{id:"ff-style",label:"Style",type:"select",options:["","Photo","Art","Graphic","Black and white"],def:"Photo"}],sysSuffix:" Format for Adobe Firefly. Natural descriptive language with photography and art direction style."}};
 
-var PRESETS = {
-  Lighting: {items:[{label:"Golden Hour", value:"golden hour lighting, warm sun"}, {label:"Blue Hour", value:"blue hour twilight"}, {label:"Rembrandt", value:"Rembrandt lighting, dramatic side light"}]},
-  Film: {items:[{label:"Kodak Portra 400", value:"shot on Kodak Portra 400"}, {label:"CineStill 800T", value:"shot on CineStill 800T, tungsten halation"}]},
-  Style: {items:[{label:"Cinematic", value:"cinematic composition, film grain"}, {label:"Cyberpunk", value:"cyberpunk aesthetic, neon"}]},
-  Composition: {items:[{label:"Extreme Wide", value:"extreme wide shot"}, {label:"Rule of Thirds", value:"rule of thirds composition"}]}
-};
+// === VIDEO GENERATORS ===
+var VID_GENERATORS={runway:{label:"Runway Gen-4"},sora:{label:"Sora"},kling:{label:"Kling"},luma:{label:"Luma Dream"},pika:{label:"Pika"},haiper:{label:"Haiper"},minimax:{label:"MiniMax"}};
+var activeVidGen="runway";
 
-/* --- FULL STATE LOGIC --- */
-var sel = []; var mode = "image"; var activeCat = "Lighting"; var activeGen = "general";
-var settings = JSON.parse(localStorage.getItem("ps_settings") || '{"provider":"google","apiKey":""}');
-var $ = (s) => document.querySelector(s);
+// === CAMERA DB ===
+var CAM_MODELS={Canon:["EOS R5","EOS R5 II","EOS R6 III","EOS R3","EOS R1","EOS 5D IV","EOS C70"],Sony:["A7 IV","A7R V","A7S III","A7C II","A9 III","A1","FX3","FX6"],Nikon:["Z9","Z8","Z6 III","Zf","D850"],Fujifilm:["X-T5","X-H2S","X100VI","GFX 100S II"],Hasselblad:["X2D 100C","907X 100C"],Leica:["M11","Q3","SL3"],Panasonic:["S5 IIX","S1H","GH7"],RED:["V-Raptor","Komodo-X"],ARRI:["Alexa 35","Alexa Mini LF","Amira"],Blackmagic:["URSA Mini Pro 12K","Pocket 6K G2","PYXIS 6K"]};
 
-// Hardened Parser to fix the 'reading text' error
-function safeParse(data, provider) {
-  try {
-    if (provider === "google") return data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || "";
-    if (provider === "openai" || provider === "openrouter") return data?.choices?.[0]?.message?.content || "";
-    if (provider === "anthropic") return data?.content?.find(c => c.type === "text")?.text || "";
-  } catch (e) { console.error("Parse Fail", e); }
-  return "";
+// === PRESETS ===
+var PRESETS={Lighting:{icon:"*",color:"#f7c97e",items:[{label:"Golden Hour",value:"golden hour lighting, warm sunlight, long shadows, soft glow"},{label:"Blue Hour",value:"blue hour lighting, cool twilight tones, ambient glow"},{label:"Rembrandt",value:"Rembrandt lighting, dramatic chiaroscuro, triangle of light on cheek"},{label:"Neon Noir",value:"neon lighting, noir atmosphere, colorful reflections on wet surfaces"},{label:"Overcast Soft",value:"soft overcast lighting, diffused shadows, even illumination"},{label:"Backlit Halo",value:"strong backlighting, rim light, halo effect, silhouette edges"},{label:"Studio Three-Point",value:"three-point studio lighting, key light, fill light, rim light"},{label:"Volumetric",value:"volumetric lighting, god rays, atmospheric haze, light shafts"},{label:"Butterfly",value:"butterfly lighting, overhead key, shadow under nose, glamorous"},{label:"Split Light",value:"split lighting, half face illuminated, dramatic contrast"},{label:"Ring Light",value:"ring light, even illumination, catch lights in eyes"},{label:"Practical Lights",value:"practical lighting, lamps, candles, natural ambient"},{label:"Hard Direct Sun",value:"harsh midday sunlight, deep shadows, high contrast"},{label:"Candlelight",value:"warm candlelight, flickering, intimate, soft orange glow"},{label:"Moonlight",value:"cool moonlight, blue tones, subtle shadows, nocturnal"}]},"Film Stock":{icon:"*",color:"#c8a2c8",items:[{label:"Kodak Portra 400",value:"shot on Kodak Portra 400, warm skin tones, pastel highlights, fine grain"},{label:"Kodak Ektar 100",value:"shot on Kodak Ektar 100, vivid colors, high saturation"},{label:"Kodak Gold 200",value:"shot on Kodak Gold 200, warm nostalgic tones"},{label:"Fuji Velvia 50",value:"shot on Fuji Velvia 50, vivid saturated colors, punchy"},{label:"Fuji Pro 400H",value:"shot on Fuji Pro 400H, muted pastels, fine grain"},{label:"Ilford HP5",value:"shot on Ilford HP5, black and white, high contrast, grain"},{label:"CineStill 800T",value:"shot on CineStill 800T, tungsten balanced, halation glow"},{label:"Polaroid",value:"Polaroid instant film, faded colors, soft vignette"}]},"Style & Mood":{icon:"*",color:"#f0a6ca",items:[{label:"Cinematic",value:"cinematic composition, dramatic lighting, film grain, color graded, widescreen"},{label:"Editorial",value:"editorial photography, high fashion, clean composition, magazine quality"},{label:"Documentary",value:"documentary style, candid, natural, raw, authentic"},{label:"Surrealist",value:"surrealist photography, dreamlike, impossible geometry"},{label:"Cyberpunk",value:"cyberpunk aesthetic, neon lights, rain-slicked streets, dystopian"},{label:"Wes Anderson",value:"Wes Anderson style, symmetrical, pastel palette, quirky"},{label:"Film Noir",value:"film noir, high contrast black and white, deep shadows"},{label:"Ethereal",value:"ethereal, soft focus, dreamy, luminous, otherworldly"},{label:"Solarpunk",value:"solarpunk, lush greenery, sustainable tech, optimistic"},{label:"Anime",value:"anime style, cel shading, vibrant colors, stylized"},{label:"Vintage Polaroid",value:"vintage Polaroid look, faded, warm cast, rounded corners"},{label:"35mm Film Grain",value:"35mm film grain texture, analog feel, subtle color shift"},{label:"Dark Academia",value:"dark academia aesthetic, moody, classical, rich earth tones"},{label:"Vaporwave",value:"vaporwave aesthetic, pink and purple, retro digital, glitch art"}]},Quality:{icon:"*",color:"#8dd6a0",items:[{label:"8K",value:"8K resolution, ultra-detailed, sharp focus"},{label:"4K",value:"4K resolution, highly detailed, sharp"},{label:"2K",value:"2K resolution, detailed"},{label:"Full HD",value:"1080p full HD, clean and sharp"},{label:"HD",value:"720p HD"},{label:"SD",value:"standard definition, lo-fi aesthetic"}]},Composition:{icon:"*",color:"#d4a5f5",items:[{label:"Rule of Thirds",value:"rule of thirds, balanced, dynamic placement"},{label:"Centered Symmetry",value:"centered symmetrical composition, geometric harmony"},{label:"Leading Lines",value:"leading lines, guiding the eye, depth, perspective"},{label:"Bird's Eye",value:"bird's eye view, top-down, aerial"},{label:"Dutch Angle",value:"Dutch angle, tilted frame, dynamic tension"},{label:"Negative Space",value:"negative space, minimalist, subject isolation"},{label:"Close-Up",value:"extreme close-up, macro detail, texture-focused"},{label:"Worm's Eye",value:"worm's eye view, looking up, towering perspective"}]}};
+
+// === SYSTEM PROMPTS ===
+var SYS="You are a senior AI visual director and prompt architect with deep expertise in cinematography, photography, and AI-generated imagery.\n\nTask: transform the user's idea into a masterfully crafted AI image generation prompt.\n\nRules:\n- Preserve the original subject and intent exactly\n- Add cinematic depth: environment, atmosphere, textures, color temperature\n- Describe light quality, direction, contrast, color cast\n- For camera/lens presets, describe optical characteristics (bokeh, compression, flare)\n- One flowing comma-separated prompt, no line breaks or lists\n- No explanation or quotes - ONLY the final prompt\n- 50-80 words max. MUST be complete, never cut off.";
+
+var SYS_VID="You are a senior AI video director and prompt architect with expertise in cinematography, camera movement, motion physics, and AI video generation.\n\nTask: transform the scene description and video parameters into a masterfully crafted AI video prompt.\n\nRules:\n- Start with the visual scene and subject\n- Weave camera movement naturally into the prose: 'the camera slowly dollies in...'\n- Describe motion, atmosphere, and temporal feel\n- One flowing paragraph of cinematic language\n- No explanation or quotes - ONLY the final prompt\n- 60-100 words max. MUST be complete, never cut off.";
+
+var SYS_JSON="You are a prompt analysis AI. Given an AI generation prompt, extract and structure its components into a JSON object. Return ONLY valid JSON with no markdown or explanation.\n\nSchema: {\"subject\":\"...\",\"style\":\"...\",\"lighting\":\"...\",\"camera\":\"...\",\"camera_movement\":\"...\",\"film_stock\":\"...\",\"composition\":\"...\",\"mood\":\"...\",\"color_palette\":\"...\",\"quality_tags\":[],\"motion_intensity\":null,\"duration\":null,\"fps\":null,\"negative_prompt\":null,\"mode\":\"image or video\",\"target_model\":\"...\",\"raw_prompt\":\"...\"}\n\nUse null for absent fields. Return ONLY the JSON object.";
+
+// === PROVIDERS ===
+var PROVS={google:{name:"Google Gemini",defaultModel:"gemini-2.5-flash",models:[{id:"gemini-2.5-flash",label:"Flash (fast, free)"},{id:"gemini-2.5-flash-lite",label:"Flash-Lite (free)"},{id:"gemini-2.5-pro",label:"Pro (free)"}],hint:"Free, no credit card.",ph:"AIza...",url:function(s){return"https://generativelanguage.googleapis.com/v1beta/models/"+(s.model||"gemini-2.5-flash")+":generateContent?key="+s.apiKey},req:function(s,m){return{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:s.systemPrompt||SYS}]},contents:m.map(function(x){return{role:x.role==="assistant"?"model":"user",parts:[{text:x.content}]}}),generationConfig:{maxOutputTokens:s.maxTokens||1024,thinkingConfig:{thinkingBudget:0}}})}},parse:function(d){return(d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts||[]).filter(function(p){return!p.thought}).map(function(p){return p.text||""}).join("").trim()}},openrouter:{name:"OpenRouter",defaultModel:"google/gemini-2.5-flash:free",models:[{id:"google/gemini-2.5-flash:free",label:"Gemini Flash (free)"},{id:"meta-llama/llama-3.3-8b-instruct:free",label:"Llama 3.3 (free)"}],hint:"Free models at openrouter.ai",ph:"sk-or-...",url:function(){return"https://openrouter.ai/api/v1/chat/completions"},req:function(s,m){return{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+s.apiKey},body:JSON.stringify({model:s.model||"google/gemini-2.5-flash:free",max_tokens:s.maxTokens||1024,messages:[{role:"system",content:s.systemPrompt||SYS}].concat(m)})}},parse:function(d){return d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content?d.choices[0].message.content.trim():""}},anthropic:{name:"Anthropic",defaultModel:"claude-sonnet-4-20250514",models:[{id:"claude-sonnet-4-20250514",label:"Claude Sonnet 4"},{id:"claude-haiku-4-5-20251001",label:"Claude Haiku 4.5"}],hint:"Paid",ph:"sk-ant-...",url:function(){return"https://api.anthropic.com/v1/messages"},req:function(s,m){return{method:"POST",headers:{"Content-Type":"application/json","x-api-key":s.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:s.model||"claude-sonnet-4-20250514",max_tokens:s.maxTokens||1024,system:s.systemPrompt||SYS,messages:m})}},parse:function(d){return(d.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text||""}).join("").trim()}},openai:{name:"OpenAI",defaultModel:"gpt-4o-mini",models:[{id:"gpt-4o-mini",label:"GPT-4o Mini"},{id:"gpt-4o",label:"GPT-4o"}],hint:"Paid",ph:"sk-...",url:function(){return"https://api.openai.com/v1/chat/completions"},req:function(s,m){return{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+s.apiKey},body:JSON.stringify({model:s.model||"gpt-4o-mini",max_tokens:s.maxTokens||1024,messages:[{role:"system",content:s.systemPrompt||SYS}].concat(m)})}},parse:function(d){return d.choices&&d.choices[0]&&d.choices[0].message?d.choices[0].message.content.trim():""}},none:{name:"None",defaultModel:"",models:[],hint:"Local only.",ph:"",url:function(){return null},req:function(){return null},parse:function(){return null}}};
+
+// === STATE ===
+var sel=[];var activeCat="Lighting";var search="";var activeGen="general";var promptHistory=[];var mode="image";var activeAR="";var activeVAR="";
+var settings={provider:"google",apiKey:"",model:"",baseUrl:"",systemPrompt:SYS,maxTokens:1024};
+var vidState={moveType:"",dir:"",stab:"",speed:"",locked:false,motionIntensity:5,action:"",duration:"",fps:"",speedStyle:"",shot:""};
+
+var $=function(s){return document.querySelector(s)};
+var editor=$("#editor"),toastEl=$("#toast"),tagsEl=$("#tags"),countEl=$("#preset-count"),listEl=$("#preset-list"),tabsEl=$("#cat-tabs"),searchEl=$("#search"),customEl=$("#custom-input"),wcEl=$("#word-count"),lnEl=$("#line-nums");
+
+// === HELPERS ===
+var tt;
+function toast(m){clearTimeout(tt);toastEl.textContent=m;toastEl.classList.add("show");tt=setTimeout(function(){toastEl.classList.remove("show")},2500)}
+function updWC(){var t=editor.value;var w=t.trim()?t.trim().split(/\s+/).length:0;wcEl.textContent=w+"w"}
+function updLN(){var n=Math.max(editor.value.split("\n").length,8);var h="";for(var i=1;i<=n;i++)h+="<span>"+i+"</span>";lnEl.innerHTML=h}
+function hexRgba(hex,a){var r=parseInt(hex.slice(1,3),16);var g=parseInt(hex.slice(3,5),16);var b=parseInt(hex.slice(5,7),16);return"rgba("+r+","+g+","+b+","+a+")"}
+
+// === MODE TOGGLE ===
+function setMode(m){
+  mode=m;
+  var isVid=m==="video";
+  $("#btn-mode-img").className=isVid?"mode-btn":"mode-btn active-img";
+  $("#btn-mode-vid").className=isVid?"mode-btn active-vid":"mode-btn";
+  $("#img-controls").classList.toggle("hidden",isVid);
+  $("#vid-controls").classList.toggle("hidden",!isVid);
+  $("#vid-sections").classList.toggle("hidden",!isVid);
+  $("#editor-wrap").classList.toggle("video-mode",isVid);
+  editor.placeholder=isVid?"Describe your video scene...":"Describe your image idea...";
+  save();
 }
+$("#btn-mode-img").addEventListener("click",function(){setMode("image")});
+$("#btn-mode-vid").addEventListener("click",function(){setMode("video")});
 
-// Rendering Sidebar
-function renderTabs() {
-  $("#cat-tabs").innerHTML = Object.keys(PRESETS).map(c => 
-    `<button class="cat-tab ${activeCat===c?'active':''}" onclick="activeCat='${c}';renderTabs();renderList()">${c}</button>`
-  ).join("");
-}
+// === ASPECT RATIO — IMAGE ===
+document.querySelectorAll(".ar-btn[data-ar]").forEach(function(b){b.addEventListener("click",function(){activeAR=b.dataset.ar;document.querySelectorAll(".ar-btn[data-ar]").forEach(function(x){x.classList.remove("active")});b.classList.add("active");save()})});
+// === ASPECT RATIO — VIDEO ===
+document.querySelectorAll(".ar-btn[data-viar]").forEach(function(b){b.addEventListener("click",function(){activeVAR=b.dataset.viar;document.querySelectorAll(".ar-btn[data-viar]").forEach(function(x){x.classList.remove("active")});b.classList.add("active")})});
 
-function renderList() {
-  var s = $("#search").value.toLowerCase();
-  var items = PRESETS[activeCat].items.filter(i => i.label.toLowerCase().includes(s));
-  $("#preset-list").innerHTML = items.map(it => {
-    var added = sel.some(s => s.value === it.value) ? " added" : "";
-    return `<button class="preset-item${added}" onclick="toggleTag('${it.label}', '${it.value}', '${activeCat}')">
-      <span style="font-size:11px; font-weight:700; color:#e0e0e8">${it.label}</span><br>
-      <span style="font-size:9px; color:#555; font-family:'JetBrains Mono'">${it.value}</span>
-    </button>`;
-  }).join("");
-}
+// Video model bar removed (no target AI selector in video mode)
 
-function toggleTag(l, v, c) {
-  if (sel.some(s => s.value === v)) sel = sel.filter(s => s.value !== v);
-  else sel.push({label:l, value:v, category:c});
-  renderTags(); renderList();
-}
+// === VIDEO CONTROLS ===
+function singleChip(selector,stateKey){document.querySelectorAll(selector).forEach(function(b){b.addEventListener("click",function(){var v=b.dataset[stateKey];if(vidState[stateKey]===v){vidState[stateKey]="";b.classList.remove("c-active")}else{document.querySelectorAll(selector).forEach(function(x){x.classList.remove("c-active")});vidState[stateKey]=v;b.classList.add("c-active")}})})}
+singleChip(".chip[data-stab]","stab");
+singleChip(".chip[data-speed]","speed");
+singleChip(".chip[data-dur]","duration");
+singleChip(".chip[data-fps]","fps");
+singleChip(".chip[data-spd]","speedStyle");
+singleChip(".chip[data-shot]","shot");
 
-function renderTags() {
-  $("#tags").innerHTML = sel.map((t, i) => 
-    `<div class="tag"><span class="tag-cat">${t.category}:</span> ${t.label} <span onclick="sel.splice(${i},1);renderTags();renderList()" style="cursor:pointer; padding-left:4px">×</span></div>`
-  ).join("") || '<div class="empty-hint">Add tags from the sidebar.</div>';
-}
+// D-pad
+document.querySelectorAll(".dpad-btn[data-dir]").forEach(function(b){b.addEventListener("click",function(){var d=b.dataset.dir;document.querySelectorAll(".dpad-btn[data-dir]").forEach(function(x){x.classList.remove("d-active")});if(vidState.dir===d){vidState.dir=""}else{vidState.dir=d;b.classList.add("d-active")}})});
+$("#dpad-clr").addEventListener("click",function(){vidState.dir="";document.querySelectorAll(".dpad-btn[data-dir]").forEach(function(x){x.classList.remove("d-active")})});
+// Move type
+$("#vid-move-type").addEventListener("change",function(){vidState.moveType=this.value});
+// Lock camera toggle
+var chipLock=$("#chip-lock-cam");chipLock.addEventListener("click",function(){vidState.locked=!vidState.locked;chipLock.classList.toggle("c-active",vidState.locked)});
+// Motion slider
+$("#vid-motion").addEventListener("input",function(){vidState.motionIntensity=parseInt(this.value);$("#vid-motion-val").textContent=this.value});
+// Action
+$("#vid-action").addEventListener("change",function(){vidState.action=this.value});
+// Transition removed
 
-function setMode(m) {
-  mode = m;
-  $("#btn-mode-img").className = m==="image" ? "btn accent" : "btn";
-  $("#btn-mode-vid").className = m==="video" ? "btn accent" : "btn";
-  $("#vid-controls").classList.toggle("hidden", m==="image");
-  $("#img-options-bar").classList.toggle("hidden", m==="video");
-  $("#editor").placeholder = m==="video" ? "Describe your cinematic video scene..." : "Describe your image idea...";
-}
+function getVidParamString(){var parts=[];
+  if(vidState.locked){parts.push("camera completely locked off, no camera movement")}
+  else{if(vidState.moveType)parts.push("camera "+vidState.moveType+(vidState.dir?" "+vidState.dir:""));if(vidState.speed)parts.push(vidState.speed)}
+  if(vidState.stab)parts.push(vidState.stab);
+  var mi=vidState.motionIntensity;if(mi!==5)parts.push("motion intensity "+(mi<=3?"low, subtle":mi<=7?"medium":"high, dynamic")+" ("+mi+"/10)");
+  if(vidState.action)parts.push(vidState.action);
+  if(vidState.speedStyle)parts.push(vidState.speedStyle);
+  if(vidState.duration)parts.push(vidState.duration);
+  if(vidState.fps)parts.push(vidState.fps);
+  if(vidState.shot)parts.push(vidState.shot);
+  if(activeVAR)parts.push("aspect ratio "+activeVAR);
+  return parts.filter(Boolean).join(", ")}
 
-// Beautify Logic
-$("#btn-beautify").onclick = async function() {
-  var t = $("#editor").value;
-  if (!settings.apiKey) return toast("Missing API Key in Settings");
+// === IMAGE GENERATOR UI ===
+function renderGenBar(){var bar=$("#gen-bar");var html='<span class="gen-label">Target AI:</span>';Object.keys(GENERATORS).forEach(function(k){var g=GENERATORS[k];var cls=k===activeGen?"btn small active-gen":"btn small";html+='<button class="'+cls+'" data-gen="'+k+'">'+g.label+'</button>'});bar.innerHTML=html;bar.querySelectorAll("[data-gen]").forEach(function(b){b.addEventListener("click",function(){activeGen=b.dataset.gen;renderGenBar();renderGenParams();save()})})}
+function renderGenParams(){var gp=$("#gen-params");var gen=GENERATORS[activeGen];if(!gen||!gen.params||gen.params.length===0){gp.classList.add("hidden");gp.innerHTML="";return}gp.classList.remove("hidden");var html="";gen.params.forEach(function(p){html+='<div style="flex:1;min-width:120px"><label>'+p.label+'</label>';if(p.type==="select"){html+='<select id="'+p.id+'" style="width:100%">';p.options.forEach(function(o){html+='<option value="'+o+'"'+(o===p.def?" selected":"")+'>'+(o||"None")+'</option>'});html+="</select>"}else if(p.type==="range"){html+='<div style="display:flex;gap:6px;align-items:center"><input type="range" id="'+p.id+'" min="'+p.min+'" max="'+p.max+'" value="'+p.def+'" style="flex:1;background:transparent;border:none;padding:0"><span id="'+p.id+'-val" style="font-size:10px;color:#888;min-width:30px">'+p.def+'</span></div>'}else if(p.type==="textarea"){html+='<textarea id="'+p.id+'" placeholder="e.g. ugly, blurry, deformed..." style="width:100%">'+p.def+'</textarea>'}html+="</div>"});gp.innerHTML=html;gp.querySelectorAll('input[type="range"]').forEach(function(r){r.addEventListener("input",function(){var v=document.getElementById(r.id+"-val");if(v)v.textContent=r.value})})}
 
-  this.textContent = "Processing...";
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.apiKey}`, {
-      method: "POST",
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({contents: [{parts:[{text: `Beautify this prompt: ${t}. Context tags: ${sel.map(s=>s.value).join(", ")}`}]}]})
-    });
-    const data = await res.json();
-    const clean = safeParse(data, "google");
-    if (clean) $("#editor").value = clean.trim();
-    toast("AI expansion complete!");
-  } catch (e) { toast("API Connection Error"); }
-  this.textContent = "✦ Beautify";
-};
+// === FOCAL/APERTURE TOOLTIPS ===
+$("#lens-focal").addEventListener("change",function(){var s=this.options[this.selectedIndex];var el=document.getElementById("focal-tip");if(el)el.textContent=s.dataset.tip||"Select a focal length"});
+$("#lens-aperture").addEventListener("change",function(){var s=this.options[this.selectedIndex];var el=document.getElementById("apt-tip");if(el)el.textContent=s.dataset.tip||"Select an aperture"});
 
-/* --- EVENT BINDING --- */
-$("#search").oninput = renderList;
-$("#btn-mode-vid").onclick = () => setMode("video");
-$("#btn-mode-img").onclick = () => setMode("image");
-$("#btn-clear").onclick = () => { $("#editor").value = ""; sel = []; renderTags(); renderList(); };
-$("#btn-copy").onclick = () => { navigator.clipboard.writeText($("#editor").value); toast("Prompt Copied!"); };
-$("#btn-settings").onclick = () => $("#settings-overlay").style.display="flex";
-$("#btn-settings-close").onclick = () => $("#settings-overlay").style.display="none";
-$("#btn-save-settings").onclick = () => {
-  settings.apiKey = $("#s-apikey").value;
-  localStorage.setItem("ps_settings", JSON.stringify(settings));
-  $("#settings-overlay").style.display="none";
-  toast("Settings Updated");
-};
+// === CAMERA BUILDER ===
+$("#cam-brand").addEventListener("change",function(){var b=this.value;var m=CAM_MODELS[b]||[];$("#cam-model").innerHTML=m.length?m.map(function(x){return"<option>"+x+"</option>"}).join(""):'<option value="">--</option>'});
+$("#btn-cam-add").addEventListener("click",function(){var c=$("#cam-custom").value.trim();if(c){addTag(c,c,"Camera");$("#cam-custom").value="";return}var b=$("#cam-brand").value,m=$("#cam-model").value,lb=$("#lens-brand").value,f=$("#lens-focal").value,a=$("#lens-aperture").value;var p=[];if(b&&m)p.push("shot on "+b+" "+m);else if(b)p.push("shot on "+b+" camera");if(lb&&f&&a)p.push(lb+" "+f+" lens, "+a+" aperture");else if(f&&a)p.push(f+" lens, "+a+" aperture");else if(f)p.push(f+" lens");if(!p.length){toast("Select camera or lens");return}var v=p.join(", ");var l=[b,m,f,a].filter(Boolean).join(" / ")||v;addTag(l,v,"Camera")});
 
-// Chip selection logic
-document.querySelectorAll(".chip").forEach(c => {
-  c.onclick = function() {
-    this.classList.toggle("c-active");
-    toast("Setting applied: " + this.textContent);
-  };
-});
+// === TAGS ===
+function addTag(l,v,c){if(sel.some(function(p){return p.value.toLowerCase()===v.toLowerCase()})){toast("Already added");return}sel.push({label:l,value:v,category:c});renderTags();renderList();save();toast("+ "+c)}
+function renderTags(){if(!sel.length){tagsEl.innerHTML='<div class="empty-hint">Select presets or build a camera setup below.</div>';countEl.textContent="";return}countEl.textContent=sel.length+" items";var cm={Camera:"#a0d2db",Lighting:"#f7c97e","Film Stock":"#c8a2c8","Style & Mood":"#f0a6ca",Quality:"#8dd6a0",Composition:"#d4a5f5",Custom:"#888"};var html="";sel.forEach(function(p,i){var co=cm[p.category]||"#888";html+='<div class="tag" style="background-color:'+hexRgba(co,.07)+';border:1px solid '+hexRgba(co,.2)+';color:'+co+'"><span class="tag-cat">'+(p.category||"")+'</span><span class="tag-label">'+(p.label||p.value)+'</span><button class="tag-rm" data-i="'+i+'">x</button></div>'});tagsEl.innerHTML=html;tagsEl.querySelectorAll(".tag-rm").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();sel.splice(parseInt(b.dataset.i),1);renderTags();renderList();save()})})}
 
-function toast(m) {
-  $("#toast").textContent = m; $("#toast").classList.add("show");
-  setTimeout(() => $("#toast").classList.remove("show"), 2000);
-}
+// === PRESET TABS & LIST ===
+function renderTabs(){var cats=getCats();var html="";cats.forEach(function(c){var d=PRESETS[c];var a=activeCat===c;var co=d?d.color:"#888";var st=a?"border-color:"+hexRgba(co,.25)+";background-color:"+hexRgba(co,.08)+";color:"+co:"";html+='<button class="cat-tab'+(a?" active":"")+'" style="'+st+'" data-c="'+c+'">'+(d?d.icon:"")+" "+c+"</button>"});tabsEl.innerHTML=html;tabsEl.querySelectorAll(".cat-tab").forEach(function(b){b.addEventListener("click",function(){activeCat=b.dataset.c;renderTabs();renderList();customEl.placeholder="Custom "+activeCat.toLowerCase()+"..."})})}
+function getCats(){if(!search)return Object.keys(PRESETS);var t=search.toLowerCase();return Object.keys(PRESETS).filter(function(c){return PRESETS[c].items.some(function(i){return i.label.toLowerCase().indexOf(t)!==-1||i.value.toLowerCase().indexOf(t)!==-1})})}
+function getItems(c){if(!search)return(PRESETS[c]&&PRESETS[c].items)||[];var t=search.toLowerCase();return((PRESETS[c]&&PRESETS[c].items)||[]).filter(function(i){return i.label.toLowerCase().indexOf(t)!==-1||i.value.toLowerCase().indexOf(t)!==-1})}
+function renderList(){var items=getItems(activeCat);if(!items.length){listEl.innerHTML='<div class="empty-hint">No presets match.</div>';return}var html="";items.forEach(function(it){var a=sel.some(function(p){return p.value===it.value});html+='<button class="preset-item'+(a?" added":"")+'" data-v="'+encodeURIComponent(it.value)+'" data-l="'+encodeURIComponent(it.label)+'"><div class="preset-item-top"><span class="preset-item-label">'+it.label+"</span>"+(a?'<span class="preset-check">OK</span>':"")+'</div><div class="preset-item-value">'+it.value+"</div></button>"});listEl.innerHTML=html;listEl.querySelectorAll(".preset-item").forEach(function(b){b.addEventListener("click",function(){var v=decodeURIComponent(b.dataset.v);var l=decodeURIComponent(b.dataset.l);if(sel.some(function(p){return p.value===v}))sel=sel.filter(function(p){return p.value!==v});else sel.push({label:l,value:v,category:activeCat});renderTags();renderList();save()})})}
 
-// Init
-setMode("image"); renderTabs(); renderList(); renderTags();
+// === BEAUTIFY ===
+function localB(t,pv){var parts=[];if(t){var e=t.replace(/[.,]+$/,"").trim();if(mode==="image"){if(!/photograph|photo|image|picture|portrait|still|frame|scene/i.test(e))e+=", professional photograph";if(!/detail|sharp|resolution|quality/i.test(e)&&!pv.some(function(p){return/detail|resolution|quality/i.test(p)}))e+=", highly detailed";if(t.trim().split(/\s+/).length<12&&!pv.some(function(p){return/atmosphere|mood|aesthetic/i.test(p)}))e+=", rich atmosphere";if(!/light|lighting|shadow|glow/i.test(e)&&!pv.some(function(p){return/light/i.test(p)}))e+=", beautiful natural lighting"}parts.push(e)}parts=parts.concat(pv);if(mode==="image"&&!/8k|4k|ultra|sharp focus|professional/i.test(parts.join(" ")))parts.push("sharp focus, professional quality");if(mode==="video"){var vp=getVidParamString();if(vp)parts.push(vp)}var all=[];parts.forEach(function(p){p.split(",").forEach(function(s){var tr=s.trim();if(tr)all.push(tr)})});var seen={};var u=[];all.forEach(function(c){var k=c.toLowerCase();if(!seen[k]){seen[k]=1;u.push(c)}});return u.join(", ")}
+
+function getImgParamsSuffix(){var gen=GENERATORS[activeGen];var parts=[];if(gen&&gen.params){gen.params.forEach(function(p){var el=document.getElementById(p.id);if(el&&el.value&&el.value!==String(p.def)){if(p.type==="textarea"&&el.value.trim())parts.push("[Negative: "+el.value.trim()+"]");else if(p.type==="select"&&el.value)parts.push(el.value);else if(p.type==="range")parts.push(p.label+": "+el.value)}})}if(activeAR&&mode==="image"){if(activeGen==="midjourney")parts.push("--ar "+activeAR);else parts.push("aspect ratio "+activeAR)}return parts.join(" ")}
+
+function aiB(t,pv){var pr=settings.provider;var c=PROVS[pr];if(!c||pr==="none"||!settings.apiKey)return Promise.resolve(null);var pb=pv.length?"\n\nIncorporate these presets:\n"+pv.join("\n"):"";var vidExtra=mode==="video"?"\n\nVideo parameters to incorporate:\n"+getVidParamString():"";var up=t?'Scene: "'+t+'"':"Create a compelling prompt for the selected presets.";var sysFull=mode==="video"?SYS_VID+"\n\nTarget model: "+VID_GENERATORS[activeVidGen].label:(settings.systemPrompt||SYS)+(GENERATORS[activeGen]&&GENERATORS[activeGen].sysSuffix?GENERATORS[activeGen].sysSuffix:"");var origSys=settings.systemPrompt;settings.systemPrompt=sysFull;var m=[{role:"user",content:up+pb+vidExtra+"\n\nOutput ONLY the final prompt text."}];var url=c.url(settings);var req=c.req(settings,m);settings.systemPrompt=origSys;if(!url||!req)return Promise.resolve(null);var ac=new AbortController();var to=setTimeout(function(){ac.abort()},20000);return fetch(url,Object.assign({},req,{signal:ac.signal})).then(function(r){clearTimeout(to);if(!r.ok)return r.text().then(function(e){throw new Error("API "+r.status+": "+e.slice(0,100))});return r.json()}).then(function(d){return c.parse(d)})}
+
+function beautify(){var t=editor.value.trim();if(!t&&!sel.length){toast("Write a prompt or select presets");return}var pv=sel.map(function(p){return p.value});var useAI=settings.provider!=="none"&&!!settings.apiKey;var btn=$("#btn-beautify");var ew=$("#editor-wrap");if(useAI){btn.classList.add("btn-loading");btn.textContent="Beautifying...";ew.classList.add("loading");editor.disabled=true;aiB(t,pv).then(function(r){if(r){var suf=mode==="image"?getImgParamsSuffix():"";editor.value=suf?r+" "+suf:r;toast("Beautified with AI!")}else{editor.value=localB(t,pv);toast("Local mode")}}).catch(function(e){editor.value=localB(t,pv);toast("Local ("+e.message.slice(0,30)+")")}).then(function(){btn.classList.remove("btn-loading");btn.textContent="Beautify";ew.classList.remove("loading");editor.disabled=false;updWC();updLN();addHistory(editor.value);save()})}else{editor.value=localB(t,pv);var suf=mode==="image"?getImgParamsSuffix():"";if(suf)editor.value+=" "+suf;toast("Local mode");updWC();updLN();addHistory(editor.value);save()}}
+
+// === HISTORY ===
+function addHistory(text){if(!text||!text.trim())return;promptHistory.unshift({text:text.trim(),time:Date.now()});if(promptHistory.length>20)promptHistory=promptHistory.slice(0,20);renderHistory();save()}
+function renderHistory(){var el=$("#history-items");var ct=$("#history-count");ct.textContent=promptHistory.length?promptHistory.length+" saved":"";if(!promptHistory.length){el.innerHTML='<div class="empty-hint">Beautified prompts appear here.</div>';return}var html="";for(var i=0;i<promptHistory.length;i++){var entry=promptHistory[i];var txt=entry&&typeof entry.text==="string"?entry.text:(typeof entry==="string"?entry:"");if(!txt)continue;html+='<div class="history-item" data-i="'+i+'">'+txt.slice(0,120)+(txt.length>120?"...":"")+"</div>"}el.innerHTML=html||'<div class="empty-hint">Beautified prompts appear here.</div>';el.querySelectorAll(".history-item").forEach(function(b){b.addEventListener("click",function(){var entry=promptHistory[parseInt(b.dataset.i)];var txt=entry&&typeof entry.text==="string"?entry.text:(typeof entry==="string"?entry:"");if(txt){editor.value=txt;updWC();updLN();save();toast("Restored from history")}})})}
+$("#history-header").addEventListener("click",function(){$("#history-drawer").classList.toggle("collapsed")});
+$("#btn-history-toggle").addEventListener("click",function(){$("#history-drawer").classList.toggle("collapsed")});
+
+// === COPY / CLEAR / CUSTOM ===
+$("#btn-copy").addEventListener("click",function(){navigator.clipboard.writeText(editor.value).then(function(){toast("Copied!")}).catch(function(){editor.select();document.execCommand("copy");toast("Copied!")})});
+$("#btn-clear").addEventListener("click",function(){editor.value="";sel=[];renderTags();renderList();updWC();updLN();save();editor.focus()});
+$("#btn-custom").addEventListener("click",function(){var v=customEl.value.trim();if(!v)return;addTag(v,v,activeCat);customEl.value=""});
+customEl.addEventListener("keydown",function(e){if(e.key==="Enter"){var v=customEl.value.trim();if(v){addTag(v,v,activeCat);customEl.value=""}}});
+editor.addEventListener("input",function(){updWC();updLN();save()});
+editor.addEventListener("scroll",function(){lnEl.style.transform="translateY(-"+editor.scrollTop+"px)"});
+searchEl.addEventListener("input",function(){search=searchEl.value;var cats=getCats();if(cats.length&&cats.indexOf(activeCat)===-1)activeCat=cats[0];renderTabs();renderList()});
+$("#btn-beautify").addEventListener("click",beautify);
+
+// === PERSISTENCE ===
+function save(){try{localStorage.setItem("ps2_state",JSON.stringify({prompt:editor.value,sel:sel,activeCat:activeCat,activeGen:activeGen,history:promptHistory,mode:mode,activeAR:activeAR}));localStorage.setItem("ps2_settings",JSON.stringify(settings));if(!$("#welcome").classList.contains("hidden")||localStorage.getItem("ps2_welcome")==="1")localStorage.setItem("ps2_welcome","1")}catch(e){}}
+function load(){try{var s=localStorage.getItem("ps2_state");if(s){var d=JSON.parse(s);if(d.prompt)editor.value=d.prompt;if(Array.isArray(d.sel)){sel=d.sel.filter(function(e){return e&&typeof e==="object"&&typeof e.value==="string"}).map(function(e){return{label:e.label||e.value,value:e.value,category:e.category||"Custom"}})}if(d.activeCat)activeCat=d.activeCat;if(d.activeGen)activeGen=d.activeGen;if(d.mode)mode=d.mode;if(d.activeAR)activeAR=d.activeAR;if(Array.isArray(d.history)){promptHistory=d.history.map(function(e){if(typeof e==="string")return{text:e,time:Date.now()};if(e&&typeof e.text==="string")return e;return null}).filter(Boolean)}}var st=localStorage.getItem("ps2_settings");if(st){var p=JSON.parse(st);p.systemPrompt=SYS;settings=Object.assign({},settings,p)}if(localStorage.getItem("ps2_welcome")==="1")$("#welcome").classList.add("hidden")}catch(e){console.warn("load() error:",e)}}
+
+// === SETTINGS ===
+function openS(){$("#s-provider").value=settings.provider;$("#s-apikey").value=settings.apiKey;$("#s-baseurl").value=settings.baseUrl||"";$("#s-maxtokens").value=settings.maxTokens||1024;updSV();$("#setup-banner").classList.toggle("hidden",!!settings.apiKey);$("#settings-overlay").classList.add("show")}
+function closeS(){$("#settings-overlay").classList.remove("show")}
+function updSV(){var pr=$("#s-provider").value;var c=PROVS[pr]||{};$("#g-apikey").classList.toggle("hidden",pr==="none");$("#g-model").classList.toggle("hidden",pr==="none");$("#g-baseurl").classList.toggle("hidden",pr!=="openrouter");if(c.models){var h="";c.models.forEach(function(m){h+='<option value="'+m.id+'"'+(m.id===(settings.model||c.defaultModel)?" selected":"")+">"+m.label+"</option>"});$("#s-model").innerHTML=h}if(c.ph)$("#s-apikey").placeholder=c.ph;$("#s-provider-hint").textContent=c.hint||"";$("#s-model-hint").textContent=c.defaultModel?"Default: "+c.defaultModel:"";if(pr==="google")$("#setup-banner").classList.toggle("hidden",!!$("#s-apikey").value);else $("#setup-banner").classList.add("hidden")}
+function saveS(){settings={provider:$("#s-provider").value,apiKey:$("#s-apikey").value.trim(),model:$("#s-model").value,baseUrl:$("#s-baseurl").value.trim(),systemPrompt:SYS,maxTokens:parseInt($("#s-maxtokens").value)||1024};save();toast("Saved!");closeS()}
+function testC(){var pr=$("#s-provider").value;var tr=$("#test-result");if(pr==="none"){tr.textContent="Local mode.";return}tr.textContent="Testing...";tr.className="settings-hint status-warn";var ts=Object.assign({},settings,{provider:pr,apiKey:$("#s-apikey").value.trim(),model:$("#s-model").value,systemPrompt:"Reply with only: OK",maxTokens:10});var c=PROVS[pr];var url=c.url(ts);var req=c.req(ts,[{role:"user",content:"Say OK"}]);var ac=new AbortController();setTimeout(function(){ac.abort()},10000);fetch(url,Object.assign({},req,{signal:ac.signal})).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){var res=c.parse(d);tr.textContent=res?"Connected: "+res.slice(0,40):"Empty response";tr.className="settings-hint "+(res?"status-ok":"status-warn")}).catch(function(e){tr.textContent="Error: "+e.message.slice(0,60);tr.className="settings-hint status-err"})}
+
+// === JSON EXPORT ===
+function exportJSON(){var t=editor.value.trim();if(!t){toast("Write or beautify a prompt first");return}var overlay=$("#json-overlay"),loading=$("#json-loading"),content=$("#json-content"),errEl=$("#json-error"),output=$("#json-output");loading.style.display="none";content.style.display="none";errEl.style.display="none";overlay.classList.add("show");var genLabel=mode==="video"?(VID_GENERATORS[activeVidGen]&&VID_GENERATORS[activeVidGen].label)||activeVidGen:(GENERATORS[activeGen]&&GENERATORS[activeGen].label)||activeGen;var pr=settings.provider;var c=PROVS[pr];if(!c||pr==="none"||!settings.apiKey){var obj={subject:t.slice(0,80),style:null,lighting:null,camera:null,camera_movement:vidState.moveType||null,film_stock:null,composition:null,mood:null,color_palette:null,quality_tags:[],motion_intensity:mode==="video"?vidState.motionIntensity:null,duration:vidState.duration||null,fps:vidState.fps||null,negative_prompt:null,mode:mode,target_model:genLabel,raw_prompt:t};sel.forEach(function(p){if(p.category==="Lighting")obj.lighting=p.value;else if(p.category==="Film Stock")obj.film_stock=p.value;else if(p.category==="Style & Mood")obj.style=p.value;else if(p.category==="Composition")obj.composition=p.value;else if(p.category==="Quality")obj.quality_tags.push(p.value);else if(p.category==="Camera")obj.camera=p.value});output.textContent=JSON.stringify(obj,null,2);content.style.display="block";return}loading.style.display="block";var userMsg="Mode: "+mode+"\nTarget model: "+genLabel+(mode==="video"?"\nVideo params: "+getVidParamString():"")+"\n\nPrompt:\n\""+t+"\"";var origSys=settings.systemPrompt;settings.systemPrompt=SYS_JSON;var url=c.url(settings);var req=c.req(settings,[{role:"user",content:userMsg}]);settings.systemPrompt=origSys;var ac=new AbortController();var to=setTimeout(function(){ac.abort()},20000);fetch(url,Object.assign({},req,{signal:ac.signal})).then(function(r){clearTimeout(to);if(!r.ok)return r.text().then(function(e){throw new Error("API "+r.status+": "+e.slice(0,100))});return r.json()}).then(function(d){var raw=c.parse(d);var clean=raw.replace(/^```[a-z]*\n?/i,"").replace(/\n?```$/,"").trim();output.textContent=JSON.stringify(JSON.parse(clean),null,2);loading.style.display="none";content.style.display="block"}).catch(function(e){loading.style.display="none";errEl.textContent="Error: "+e.message;errEl.style.display="block"})}
+
+$("#btn-json").addEventListener("click",exportJSON);
+$("#btn-json-close").addEventListener("click",function(){$("#json-overlay").classList.remove("show")});
+$("#json-overlay").addEventListener("click",function(e){if(e.target===$("#json-overlay"))$("#json-overlay").classList.remove("show")});
+$("#btn-json-copy").addEventListener("click",function(){navigator.clipboard.writeText($("#json-output").textContent).then(function(){toast("JSON copied!")}).catch(function(){toast("Copy failed")})});
+$("#btn-settings").addEventListener("click",openS);
+$("#btn-settings-close").addEventListener("click",closeS);
+$("#settings-overlay").addEventListener("click",function(e){if(e.target===$("#settings-overlay"))closeS()});
+$("#btn-save-settings").addEventListener("click",saveS);
+$("#btn-test").addEventListener("click",testC);
+$("#s-provider").addEventListener("change",updSV);
+$("#btn-toggle-key").addEventListener("click",function(){var i=$("#s-apikey");var pw=i.type==="password";i.type=pw?"text":"password";this.textContent=pw?"Hide":"Show"});
+$("#welcome-close").addEventListener("click",function(){$("#welcome").classList.add("hidden");localStorage.setItem("ps2_welcome","1")});
+
+// === INIT ===
+load();
+setMode(mode);
+if(activeAR){document.querySelectorAll(".ar-btn[data-ar]").forEach(function(b){if(b.dataset.ar===activeAR)b.classList.add("active")})}
+renderGenBar();renderGenParams();renderTabs();renderList();renderTags();renderHistory();updWC();updLN();
 </script>
 </body>
 </html>
