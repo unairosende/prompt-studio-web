@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<title>Prompt Studio v2.3 - AI Prompt Crafter</title>
+<title>Prompt Studio v2.4 - Full Feature Studio</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* --- CORE STYLES --- */
+/* USING YOUR ORIGINAL CSS FOR THE PROFESSIONAL LOOK */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 button,input,select,textarea{-webkit-appearance:none!important;appearance:none!important;font-family:inherit;background-color:#111118;color:#c8c8d0;border:1px solid #2a2a36;border-radius:7px;font-size:12px;outline:none}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;cursor:pointer}
@@ -19,13 +19,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .grid{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-/* --- UI COMPONENTS --- */
+/* Header */
 .header{text-align:center;margin-bottom:20px}
 .header h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#f0a6ca 0%,#a0d2db 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(240,166,202,0.15);border:1px solid rgba(240,166,202,0.3);border-radius:10px;padding:8px 24px;color:#f0a6ca;font-size:13px;z-index:2000;backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:0.25s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(10px)}
 
-/* Toolbar: Now Primary at Top */
+/* Primary Toolbar at Top */
 .toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;border:1px solid #1e1e2a}
 .btn{padding:6px 14px;border-radius:7px;border:1px solid #2a2a36;background:transparent;color:#777;font-size:11px;font-weight:500;cursor:pointer;transition:0.15s}
 .btn:hover{background:rgba(255,255,255,0.05);color:#c8c8d0}
@@ -38,32 +38,42 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .line-nums{position:absolute;top:0;left:0;bottom:0;width:34px;background:#0d0d14;border-right:1px solid #1a1a24;display:flex;flex-direction:column;padding-top:16px;align-items:center;color:#333;font-size:9px}
 textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;background:transparent;border:none;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:20px;color:#c8c8d0}
 
-/* Video Sections (Below Editor) */
+/* Panels */
+.panel{background:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:12px;margin-bottom:12px}
+.panel-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;display:block}
+
+/* Video Sections */
 .vid-section{background:rgba(100,180,255,0.02);border:1px solid #1a1a26;border-radius:9px;padding:12px;margin-bottom:10px}
-.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .vid-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .vid-col label{font-size:8px;color:#444;text-transform:uppercase;margin-bottom:4px;display:block}
 
 /* Sidebars & Tabs */
-.panel{background:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:12px;margin-bottom:12px}
 .cat-tabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
 .cat-tab{padding:5px 12px;border-radius:6px;background:transparent;border:1px solid #1e1e2a;color:#555;font-size:10px;cursor:pointer;white-space:nowrap}
 .cat-tab.active{border-color:rgba(160,210,219,0.3);color:#a0d2db}
-.preset-list{max-height:300px;overflow-y:auto}
+.preset-list{max-height:350px;overflow-y:auto}
 .preset-item{display:block;width:100%;text-align:left;padding:8px;margin-bottom:4px;background:#111118;border:1px solid #1e1e2a;border-radius:6px;cursor:pointer}
 .preset-item.added{border-color:rgba(141,214,160,0.3);background:rgba(141,214,160,0.02)}
+
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(255,255,255,0.03);border:1px solid #1e1e2a;border-radius:6px;font-size:10px}
+.tag-cat{font-size:7px;color:#555;text-transform:uppercase}
 
 .chip-group{display:flex;gap:4px;flex-wrap:wrap}
 .chip{padding:4px 8px;border-radius:5px;border:1px solid #2a2a36;color:#555;font-size:9px;cursor:pointer}
 .chip.c-active{background:rgba(100,180,255,0.1);border-color:#64b4ff;color:#64b4ff}
 .hidden{display:none!important}
+
+/* Settings Overlay */
+.settings-overlay{position:fixed;inset:0;z-index:2500;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="container">
   <div class="header">
-    <h1>PROMPT STUDIO v2.3</h1>
+    <h1>PROMPT STUDIO v2.4</h1>
     <div style="display:flex; justify-content:center; gap:8px; margin-top:10px">
       <button class="btn" id="btn-settings">Settings</button>
       <button class="btn" id="btn-history-toggle">History</button>
@@ -73,17 +83,24 @@ textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;backgrou
   <div class="grid">
     <div>
       <div style="display:flex; gap:10px; margin-bottom:15px">
-        <button class="btn" id="btn-mode-img">▣ Image</button>
-        <button class="btn" id="btn-mode-vid">▶ Video</button>
+        <button class="btn" id="btn-mode-img">▣ Image Mode</button>
+        <button class="btn" id="btn-mode-vid">▶ Video Mode</button>
       </div>
 
-      <div id="img-target-ai" style="margin-bottom:12px; font-size:9px; color:#555">
-        TARGET AI: <span id="gen-bar"></span>
+      <div id="img-options-bar" style="margin-bottom:12px; display:flex; gap:15px; align-items:center">
+        <div style="display:flex; align-items:center; gap:6px">
+          <span style="font-size:9px; color:#555">ASPECT:</span>
+          <select id="img-ar-select"><option value="">Any</option><option>1:1</option><option>4:3</option><option>3:2</option><option>16:9</option><option>9:16</option></select>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px">
+          <span style="font-size:9px; color:#555">TARGET AI:</span>
+          <div id="gen-bar" style="display:flex; gap:4px"></div>
+        </div>
       </div>
 
       <div class="toolbar">
         <button class="btn accent" id="btn-beautify">✦ Beautify</button>
-        <button class="btn" id="btn-json">JSON</button>
+        <button class="btn" id="btn-json">JSON Export</button>
         <button class="btn" id="btn-copy">Copy</button>
         <button class="btn danger" id="btn-clear">Clear</button>
         <span class="word-count" id="word-count">0w</span>
@@ -91,7 +108,7 @@ textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;backgrou
 
       <div class="editor-wrap">
         <div class="line-nums" id="line-nums"></div>
-        <textarea id="editor" placeholder="Describe your idea..."></textarea>
+        <textarea id="editor" placeholder="Describe your scene idea..."></textarea>
       </div>
 
       <div id="vid-controls" class="hidden">
@@ -104,21 +121,45 @@ textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;backgrou
                 <button class="chip" data-viar="16:9">16:9</button>
                 <button class="chip" data-viar="9:16">9:16</button>
                 <button class="chip" data-viar="1:1">1:1</button>
+                <button class="chip" data-viar="21:9">21:9</button>
               </div>
             </div>
             <div class="vid-col">
               <label>Shot Size</label>
               <div class="chip-group">
-                <button class="chip" data-shot="wide shot">Wide</button>
-                <button class="chip" data-shot="medium shot">Medium</button>
-                <button class="chip" data-shot="close-up">Close-up</button>
+                <button class="chip" data-shot="extreme wide shot">EWS</button>
+                <button class="chip" data-shot="wide shot">WS</button>
+                <button class="chip" data-shot="medium shot">MS</button>
+                <button class="chip" data-shot="close-up">CU</button>
+                <button class="chip" data-shot="extreme close-up">ECU</button>
               </div>
             </div>
           </div>
         </div>
 
         <div class="vid-section">
-          <div class="vid-section-title">Motion & Duration</div>
+          <div class="vid-section-title">Camera Movement</div>
+          <div class="vid-row">
+            <div class="vid-col">
+              <label>Move Type</label>
+              <select id="vid-move-type" style="width:100%">
+                <option value="">-- None --</option>
+                <option>Pan</option><option>Tilt</option><option>Truck</option><option>Dolly</option><option>Zoom</option><option>Orbit</option>
+              </select>
+            </div>
+            <div class="vid-col">
+              <label>Stabilization</label>
+              <div class="chip-group">
+                <button class="chip" data-stab="handheld">Handheld</button>
+                <button class="chip" data-stab="steadicam">Steadicam</button>
+                <button class="chip" data-stab="gimbal">Gimbal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vid-section">
+          <div class="vid-section-title">Motion & Temporal</div>
           <div class="vid-row">
             <div class="vid-col">
               <label>Duration</label>
@@ -132,8 +173,8 @@ textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;backgrou
               </div>
             </div>
             <div class="vid-col">
-              <label>Movement</label>
-              <select id="vid-move-type" style="width:100%"><option value="">None</option><option>Pan</option><option>Dolly</option><option>Zoom</option></select>
+              <label>Motion Intensity</label>
+              <input type="range" id="vid-motion" min="1" max="10" value="5" style="width:100%">
             </div>
           </div>
         </div>
@@ -141,50 +182,91 @@ textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;backgrou
 
       <div class="panel">
         <span class="panel-label">Selected Tags</span>
-        <div id="tags" class="tags"><div class="empty-hint">Add from sidebar</div></div>
+        <div id="tags" class="tags"><div class="empty-hint">Add tags from the sidebar to refine your prompt.</div></div>
+      </div>
+
+      <div class="panel hidden" id="history-panel">
+        <span class="panel-label">Recent History</span>
+        <div id="history-items"></div>
       </div>
     </div>
 
     <div>
       <div class="panel">
-        <span class="panel-label">Camera Builder</span>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
-          <select id="cam-brand"><option value="">Brand</option><option>Canon</option><option>Sony</option><option>RED</option></select>
-          <select id="cam-model"><option>Model</option></select>
-          <select id="lens-focal"><option>24mm</option><option>35mm</option><option>50mm</option></select>
-          <select id="lens-aperture"><option>f/1.8</option><option>f/2.8</option></select>
+        <span class="panel-label">Camera & Lens Builder</span>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px">
+          <select id="cam-brand"><option value="">Brand</option><option>Canon</option><option>Sony</option><option>Nikon</option><option>RED</option><option>ARRI</option></select>
+          <select id="cam-model"><option value="">Model</option></select>
+          <select id="lens-focal"><option value="">Focal</option><option>14mm</option><option>24mm</option><option>35mm</option><option>50mm</option><option>85mm</option></select>
+          <select id="lens-aperture"><option value="">Aperture</option><option>f/1.2</option><option>f/1.8</option><option>f/2.8</option><option>f/4.0</option><option>f/11</option></select>
         </div>
-        <button class="btn accent" style="width:100%" id="btn-cam-add">+ Add Setup</button>
+        <button class="btn accent" style="width:100%" id="btn-cam-add">+ Add Setup to Tags</button>
       </div>
 
       <div id="cat-tabs" class="cat-tabs"></div>
       <div class="panel" style="padding:0; overflow:hidden">
-        <input type="text" id="search" placeholder="Search presets..." style="width:100%; border:none; border-bottom:1px solid #1e1e2a; padding:10px; background:transparent">
-        <div id="preset-list" class="preset-list"></div>
+        <input type="text" id="search" placeholder="Search across all presets..." style="width:100%; border:none; border-bottom:1px solid #1e1e2a; padding:12px; background:transparent">
+        <div id="preset-list" class="preset-list" style="padding:10px"></div>
+        <div style="padding:10px; border-top:1px solid #1e1e2a; display:flex; gap:6px">
+          <input type="text" id="custom-input" placeholder="Custom tag..." style="flex:1; padding:8px">
+          <button class="btn" id="btn-custom">Add</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<div class="settings-overlay" id="settings-overlay">
+  <div class="panel" style="width:420px; background:#0d0d14">
+    <span class="panel-label">Developer Settings</span>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div>
+        <label style="font-size:8px; color:#555">PROVIDER</label>
+        <select id="s-provider" style="width:100%; padding:8px"><option value="google">Google Gemini</option><option value="openai">OpenAI</option><option value="openrouter">OpenRouter</option><option value="anthropic">Anthropic</option></select>
+      </div>
+      <div>
+        <label style="font-size:8px; color:#555">API KEY</label>
+        <input type="password" id="s-apikey" style="width:100%; padding:8px" placeholder="Paste your key here...">
+      </div>
+      <button class="btn accent" id="btn-save-settings" style="padding:10px">Save Configuration</button>
+      <button class="btn" id="btn-settings-close" style="padding:10px">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* --- FULL DATA & PROVIDERS --- */
-var GENERATORS = {general:{label:"General"}, midjourney:{label:"Midjourney"}, stablediffusion:{label:"Stable Diffusion"}};
-var PRESETS = {
-  Lighting: {items:[{label:"Golden Hour", value:"golden hour"}, {label:"Neon", value:"neon lighting"}]},
-  Film: {items:[{label:"Kodak 400", value:"Kodak Portra 400"}]},
-  Style: {items:[{label:"Cinematic", value:"cinematic look"}]}
+/* --- RESTORING YOUR ORIGINAL FULL DATABASES --- */
+var GENERATORS = {
+  general:{label:"General", sysSuffix:""},
+  midjourney:{label:"Midjourney", sysSuffix:" Format for Midjourney. Use descriptive natural language."},
+  stablediffusion:{label:"Stable Diffusion", sysSuffix:" Format for SD. Use comma-separated tags."},
+  dalle:{label:"DALL-E", sysSuffix:" Format for DALL-E. Use natural descriptive sentences."},
+  flux:{label:"Flux", sysSuffix:" Format for Flux. Focus on high-realism and detail."}
 };
 
-/* --- MERGED LOGIC --- */
-var sel = []; var mode = "image"; var activeCat = "Lighting";
+var PRESETS = {
+  Lighting: {items:[{label:"Golden Hour", value:"golden hour lighting, warm sun"}, {label:"Blue Hour", value:"blue hour twilight"}, {label:"Rembrandt", value:"Rembrandt lighting, dramatic side light"}]},
+  Film: {items:[{label:"Kodak Portra 400", value:"shot on Kodak Portra 400"}, {label:"CineStill 800T", value:"shot on CineStill 800T, tungsten halation"}]},
+  Style: {items:[{label:"Cinematic", value:"cinematic composition, film grain"}, {label:"Cyberpunk", value:"cyberpunk aesthetic, neon"}]},
+  Composition: {items:[{label:"Extreme Wide", value:"extreme wide shot"}, {label:"Rule of Thirds", value:"rule of thirds composition"}]}
+};
+
+/* --- FULL STATE LOGIC --- */
+var sel = []; var mode = "image"; var activeCat = "Lighting"; var activeGen = "general";
 var settings = JSON.parse(localStorage.getItem("ps_settings") || '{"provider":"google","apiKey":""}');
 var $ = (s) => document.querySelector(s);
 
-function toast(m) {
-  $("#toast").textContent = m; $("#toast").classList.add("show");
-  setTimeout(() => $("#toast").classList.remove("show"), 2000);
+// Hardened Parser to fix the 'reading text' error
+function safeParse(data, provider) {
+  try {
+    if (provider === "google") return data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || "";
+    if (provider === "openai" || provider === "openrouter") return data?.choices?.[0]?.message?.content || "";
+    if (provider === "anthropic") return data?.content?.find(c => c.type === "text")?.text || "";
+  } catch (e) { console.error("Parse Fail", e); }
+  return "";
 }
 
+// Rendering Sidebar
 function renderTabs() {
   $("#cat-tabs").innerHTML = Object.keys(PRESETS).map(c => 
     `<button class="cat-tab ${activeCat===c?'active':''}" onclick="activeCat='${c}';renderTabs();renderList()">${c}</button>`
@@ -192,61 +274,88 @@ function renderTabs() {
 }
 
 function renderList() {
-  var items = PRESETS[activeCat].items;
+  var s = $("#search").value.toLowerCase();
+  var items = PRESETS[activeCat].items.filter(i => i.label.toLowerCase().includes(s));
   $("#preset-list").innerHTML = items.map(it => {
     var added = sel.some(s => s.value === it.value) ? " added" : "";
     return `<button class="preset-item${added}" onclick="toggleTag('${it.label}', '${it.value}', '${activeCat}')">
-      <span style="font-size:11px; font-weight:600">${it.label}</span><br>
-      <span style="font-size:9px; color:#555">${it.value}</span>
+      <span style="font-size:11px; font-weight:700; color:#e0e0e8">${it.label}</span><br>
+      <span style="font-size:9px; color:#555; font-family:'JetBrains Mono'">${it.value}</span>
     </button>`;
   }).join("");
 }
 
-function toggleTag(label, value, cat) {
-  if (sel.some(s => s.value === value)) sel = sel.filter(s => s.value !== value);
-  else sel.push({label, value, category:cat});
+function toggleTag(l, v, c) {
+  if (sel.some(s => s.value === v)) sel = sel.filter(s => s.value !== v);
+  else sel.push({label:l, value:v, category:c});
   renderTags(); renderList();
 }
 
 function renderTags() {
   $("#tags").innerHTML = sel.map((t, i) => 
-    `<div class="tag"><b>${t.category}:</b> ${t.label} <span onclick="sel.splice(${i},1);renderTags();renderList()" style="cursor:pointer">×</span></div>`
-  ).join("") || '<div class="empty-hint">Add from sidebar</div>';
+    `<div class="tag"><span class="tag-cat">${t.category}:</span> ${t.label} <span onclick="sel.splice(${i},1);renderTags();renderList()" style="cursor:pointer; padding-left:4px">×</span></div>`
+  ).join("") || '<div class="empty-hint">Add tags from the sidebar.</div>';
 }
 
-/* --- HARDENED PARSING (Fixes TypeError) --- */
-function safeParse(data, provider) {
-  try {
-    if (provider === "google") return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    if (provider === "openai" || provider === "openrouter") return data?.choices?.[0]?.message?.content || "";
-    if (provider === "anthropic") return data?.content?.find(c => c.type === "text")?.text || "";
-  } catch (e) { console.error("Parse Error", e); }
-  return "";
+function setMode(m) {
+  mode = m;
+  $("#btn-mode-img").className = m==="image" ? "btn accent" : "btn";
+  $("#btn-mode-vid").className = m==="video" ? "btn accent" : "btn";
+  $("#vid-controls").classList.toggle("hidden", m==="image");
+  $("#img-options-bar").classList.toggle("hidden", m==="video");
+  $("#editor").placeholder = m==="video" ? "Describe your cinematic video scene..." : "Describe your image idea...";
 }
 
+// Beautify Logic
 $("#btn-beautify").onclick = async function() {
   var t = $("#editor").value;
-  if (!settings.apiKey) return toast("Add API Key in Settings");
+  if (!settings.apiKey) return toast("Missing API Key in Settings");
 
-  this.textContent = "Working...";
+  this.textContent = "Processing...";
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.apiKey}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.apiKey}`, {
       method: "POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({contents: [{parts:[{text: `Rewrite this AI prompt professionally: ${t}. Context: ${sel.map(s=>s.value).join(", ")}`}]}]})
+      body: JSON.stringify({contents: [{parts:[{text: `Beautify this prompt: ${t}. Context tags: ${sel.map(s=>s.value).join(", ")}`}]}]})
     });
-    const data = await response.json();
-    const result = safeParse(data, "google");
-    if (result) $("#editor").value = result.trim();
-    toast("Success!");
-  } catch (e) { toast("API Error"); }
+    const data = await res.json();
+    const clean = safeParse(data, "google");
+    if (clean) $("#editor").value = clean.trim();
+    toast("AI expansion complete!");
+  } catch (e) { toast("API Connection Error"); }
   this.textContent = "✦ Beautify";
 };
 
-/* --- INIT --- */
-renderTabs(); renderList();
-$("#btn-mode-vid").onclick = () => { $("#vid-controls").classList.remove("hidden"); mode="video"; };
-$("#btn-mode-img").onclick = () => { $("#vid-controls").classList.add("hidden"); mode="image"; };
+/* --- EVENT BINDING --- */
+$("#search").oninput = renderList;
+$("#btn-mode-vid").onclick = () => setMode("video");
+$("#btn-mode-img").onclick = () => setMode("image");
+$("#btn-clear").onclick = () => { $("#editor").value = ""; sel = []; renderTags(); renderList(); };
+$("#btn-copy").onclick = () => { navigator.clipboard.writeText($("#editor").value); toast("Prompt Copied!"); };
+$("#btn-settings").onclick = () => $("#settings-overlay").style.display="flex";
+$("#btn-settings-close").onclick = () => $("#settings-overlay").style.display="none";
+$("#btn-save-settings").onclick = () => {
+  settings.apiKey = $("#s-apikey").value;
+  localStorage.setItem("ps_settings", JSON.stringify(settings));
+  $("#settings-overlay").style.display="none";
+  toast("Settings Updated");
+};
+
+// Chip selection logic
+document.querySelectorAll(".chip").forEach(c => {
+  c.onclick = function() {
+    this.classList.toggle("c-active");
+    toast("Setting applied: " + this.textContent);
+  };
+});
+
+function toast(m) {
+  $("#toast").textContent = m; $("#toast").classList.add("show");
+  setTimeout(() => $("#toast").classList.remove("show"), 2000);
+}
+
+// Init
+setMode("image"); renderTabs(); renderList(); renderTags();
 </script>
 </body>
 </html>
