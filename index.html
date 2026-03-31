@@ -4,406 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<title>Prompt Studio v2.1 - AI Prompt Crafter</title>
-<meta name="description" content="Craft professional AI image & video generation prompts. Free, open-source.">
+<title>Prompt Studio v2.2 - AI Prompt Crafter</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* CSS Reset & Variables */
+/* Reset & Base */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-button,input,select,textarea{-webkit-appearance:none!important;-moz-appearance:none!important;appearance:none!important;font-family:inherit;background-color:#111118;color:#c8c8d0;border:1px solid #2a2a36;border-radius:7px;font-size:12px;outline:none}
+button,input,select,textarea{-webkit-appearance:none!important;appearance:none!important;font-family:inherit;background-color:#111118;color:#c8c8d0;border:1px solid #2a2a36;border-radius:7px;font-size:12px;outline:none}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;cursor:pointer}
-select option{background-color:#111118;color:#c8c8d0}
-html{scroll-behavior:smooth}
 body{background-color:#0a0a0f;color:#e0e0e8;font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(120,60,160,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(60,120,180,.05) 0%,transparent 60%)}
 
-/* Layout & Containers */
+/* Layout */
 .container{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:32px 24px 60px}
 .grid{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-/* Header & Notifications */
-.header{text-align:center;margin-bottom:20px;animation:fadeUp .6s ease}
-.header-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:4px}
-.header-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#f0a6ca,#a0d2db);box-shadow:0 0 16px rgba(240,166,202,.5);animation:pulse-glow 3s ease-in-out infinite}
-.header h1{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#f0a6ca 0%,#a0d2db 50%,#d4a5f5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header p{font-size:12px;color:#666;font-weight:300;letter-spacing:.08em}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-8px);background-color:rgba(240,166,202,.15);border:1px solid rgba(240,166,202,.3);border-radius:10px;padding:8px 24px;color:#f0a6ca;font-size:13px;font-weight:500;z-index:200;backdrop-filter:blur(16px);opacity:0;pointer-events:none;transition:all .25s ease}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+/* Header */
+.header{text-align:center;margin-bottom:20px}
+.header h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#f0a6ca 0%,#a0d2db 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(240,166,202,0.2);border:1px solid rgba(240,166,202,0.4);border-radius:10px;padding:8px 24px;color:#f0a6ca;font-size:13px;z-index:1000;backdrop-filter:blur(10px);opacity:0;transition:0.3s}
+.toast.show{opacity:1}
 
-/* Toolbar & Mode Toggle */
-.mode-toggle{display:flex;gap:0;margin-bottom:16px;background-color:#0d0d14;border:1px solid #1e1e2a;border-radius:9px;padding:3px;width:fit-content}
-.mode-btn{padding:6px 20px;border-radius:6px;border:none!important;background-color:transparent!important;color:#555;font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s}
-.mode-btn.active-img{background-color:rgba(240,166,202,.12)!important;color:#f0a6ca}
-.mode-btn.active-vid{background-color:rgba(100,180,255,.12)!important;color:#64b4ff}
-.toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;background-color:rgba(255,255,255,.02);padding:6px;border-radius:10px;border:1px solid #1e1e2a}
-.word-count{margin-left:auto;font-size:10px;color:#666;font-family:'JetBrains Mono',monospace;padding-right:8px}
+/* Primary Toolbar */
+.toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;border:1px solid #1e1e2a}
+.btn{padding:6px 14px;border-radius:7px;border:1px solid #2a2a36;background:transparent;color:#777;font-size:11px;cursor:pointer;transition:0.15s}
+.btn:hover{background:rgba(255,255,255,0.05);color:#fff}
+.btn.accent{background:rgba(240,166,202,0.1)!important;border-color:rgba(240,166,202,0.3);color:#f0a6ca}
+.btn.danger:hover{color:#ff7777;border-color:rgba(255,100,100,0.4)}
+.word-count{margin-left:auto;font-size:10px;color:#555;font-family:'JetBrains Mono'}
 
-/* Buttons */
-.btn{padding:6px 14px;border-radius:7px;border:1px solid #2a2a36;background-color:transparent!important;color:#777;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
-.btn:hover{background-color:rgba(255,255,255,.04)!important;border-color:#3a3a46;color:#c8c8d0}
-.btn.accent{background-color:rgba(240,166,202,.08)!important;border-color:rgba(240,166,202,.2);color:#f0a6ca}
-.btn.accent:hover{background-color:rgba(240,166,202,.15)!important;border-color:rgba(240,166,202,.4)}
-.btn.danger:hover{background-color:rgba(255,100,100,.1)!important;border-color:rgba(255,100,100,.3);color:#ff7777}
-.btn-loading{background:linear-gradient(90deg,rgba(240,166,202,.08) 0%,rgba(240,166,202,.2) 50%,rgba(240,166,202,.08) 100%)!important;background-size:200px 100%!important;animation:shimmer 1.5s infinite linear!important;pointer-events:none!important}
+/* Editor */
+.editor-wrap{position:relative;background:#111118;border-radius:12px;border:1px solid #1e1e2a;overflow:hidden;margin-bottom:16px}
+.line-nums{position:absolute;top:0;left:0;bottom:0;width:34px;background:#0d0d14;border-right:1px solid #1a1a24;display:flex;flex-direction:column;padding-top:16px;align-items:center;color:#333;font-size:9px;font-family:'JetBrains Mono'}
+textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;background:transparent;border:none;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:20px;color:#c8c8d0}
 
-/* Editor Section */
-.editor-wrap{position:relative;background-color:#111118;border-radius:12px;border:1px solid #1e1e2a;overflow:hidden;transition:border-color .3s;margin-bottom:16px}
-.editor-wrap.loading{border-color:rgba(240,166,202,.4)}
-.editor-wrap.video-mode{border-color:rgba(100,180,255,.2)}
-.line-nums{position:absolute;top:0;left:0;bottom:0;width:34px;background-color:#0d0d14;border-right:1px solid #1a1a24;display:flex;flex-direction:column;padding-top:16px;align-items:center;gap:1px;overflow:hidden}
-.line-nums span{font-size:9px;color:#333;font-family:'JetBrains Mono',monospace;line-height:20px}
-textarea#editor{width:100%;min-height:180px;padding:16px 16px 16px 44px;background-color:transparent!important;border:none!important;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:20px;color:#c8c8d0;caret-color:#f0a6ca}
+/* Panels */
+.panel{background:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:12px;margin-bottom:12px}
+.panel-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;display:block}
+.mode-toggle{display:flex;gap:4px;margin-bottom:12px}
+.mode-btn{padding:6px 16px;border-radius:6px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer}
+.mode-btn.active-img{background:rgba(240,166,202,0.1);color:#f0a6ca}
+.mode-btn.active-vid{background:rgba(100,180,255,0.1);color:#64b4ff}
 
-/* Panels & Sections */
-.panel{background-color:#0d0d14;border-radius:9px;border:1px solid #1e1e2a;padding:12px;margin-bottom:12px}
-.panel-label{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:8px;display:block}
-.vid-section{background-color:rgba(100,180,255,.02);border:1px solid #1a1a26;border-radius:9px;padding:12px;margin-bottom:10px}
-.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.vid-section-title::before{content:'';display:inline-block;width:3px;height:10px;background:linear-gradient(180deg,#64b4ff,#a0d2db);border-radius:2px}
-
-/* Video Controls Specific */
+/* Video Sections */
+.vid-section{background:rgba(100,180,255,0.02);border:1px solid #1a1a26;border-radius:9px;padding:12px;margin-bottom:10px}
+.vid-section-title{font-size:8px;color:#64b4ff;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .vid-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .vid-col{flex:1;min-width:120px}
-.vid-col label{font-size:8px;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:block}
-.chip-group{display:flex;gap:4px;flex-wrap:wrap}
-.chip{padding:4px 8px;border-radius:5px;border:1px solid #2a2a36;background-color:transparent!important;color:#555;font-size:9px;cursor:pointer;transition:all .15s}
-.chip:hover{border-color:#3a3a46;color:#c8c8d0}
-.chip.c-active{background-color:rgba(100,180,255,.12)!important;border-color:rgba(100,180,255,.4);color:#64b4ff}
+.vid-col label{font-size:8px;color:#444;text-transform:uppercase;margin-bottom:4px;display:block}
 
-/* D-pad */
-.dpad-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
-.dpad-row{display:flex;gap:2px}
-.dpad-btn{width:28px;height:28px;border-radius:5px;border:1px solid #2a2a36;background-color:#111118!important;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.dpad-btn.d-active{background-color:rgba(100,180,255,.2)!important;border-color:#64b4ff;color:#64b4ff}
-
-/* Utility */
-.hidden{display:none!important}
-.empty-hint{padding:12px;text-align:center;color:#444;font-size:11px;font-style:italic}
-.tags{display:flex;flex-wrap:wrap;gap:5px}
-.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;font-size:10px}
-.tag-cat{font-size:7px;opacity:.6;text-transform:uppercase}
-.tag-label{color:#c8c8d0;font-family:'JetBrains Mono',monospace;font-size:9px}
-.tag-rm{background-color:transparent!important;border:none!important;color:inherit;opacity:.5;cursor:pointer}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes shimmer{0%{background-position:-200px 0}100%{background-position:200px 0}}
-</style>
-</head>
-<body>
-<div class="toast" id="toast"></div>
-<div class="container">
-<div class="header">
-  <div class="header-row"><div class="header-dot"></div><h1>PROMPT STUDIO v2.1</h1></div>
-  <p>CRAFT . BEAUTIFY . CREATE</p>
-  <div class="header-actions" style="margin-top:10px;display:flex;justify-content:center;gap:8px">
-    <button class="btn" id="btn-settings">Settings</button>
-    <button class="btn" id="btn-history-toggle">History</button>
-  </div>
-</div>
-
-<div class="grid">
-  <div>
-    <div class="mode-toggle">
-      <button class="mode-btn active-img" id="btn-mode-img">▣ Image</button>
-      <button class="mode-btn" id="btn-mode-vid">▶ Video</button>
-    </div>
-
-    <div id="img-options">
-      <div class="panel" style="background:transparent; padding:0 0 12px 0; border:none">
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
-          <div style="display:flex; gap:6px; align-items:center">
-            <span style="font-size:9px; color:#555; text-transform:uppercase">Aspect Ratio:</span>
-            <select id="img-ar" style="padding:4px 20px 4px 8px">
-              <option value="">Any</option><option>1:1</option><option>4:3</option><option>3:2</option><option>16:9</option><option>21:9</option><option>9:16</option>
-            </select>
-          </div>
-          <div id="gen-bar" style="display:flex; gap:4px; align-items:center"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="toolbar">
-      <button class="btn accent" id="btn-beautify">✦ Beautify</button>
-      <button class="btn" id="btn-json">JSON</button>
-      <button class="btn" id="btn-copy">Copy</button>
-      <button class="btn danger" id="btn-clear">Clear</button>
-      <span class="word-count" id="word-count">0w</span>
-    </div>
-
-    <div class="editor-wrap" id="editor-wrap">
-      <div class="line-nums" id="line-nums"></div>
-      <textarea id="editor" placeholder="Describe your image idea..." spellcheck="false"></textarea>
-    </div>
-
-    <div id="vid-controls" class="hidden">
-      <div class="vid-section">
-        <div class="vid-section-title">Framing & Shot Size</div>
-        <div class="vid-row">
-          <div class="vid-col">
-            <label>Aspect Ratio</label>
-            <div class="chip-group" id="vid-ar-chips">
-              <button class="chip" data-viar="16:9">16:9</button>
-              <button class="chip" data-viar="9:16">9:16</button>
-              <button class="chip" data-viar="1:1">1:1</button>
-            </div>
-          </div>
-          <div class="vid-col">
-            <label>Shot Size</label>
-            <div class="chip-group">
-              <button class="chip" data-shot="extreme wide shot">EWS</button>
-              <button class="chip" data-shot="wide shot">WS</button>
-              <button class="chip" data-shot="medium shot">MS</button>
-              <button class="chip" data-shot="close-up">CU</button>
-              <button class="chip" data-shot="extreme close-up">ECU</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="vid-section">
-        <div class="vid-section-title">Camera Movement</div>
-        <div class="vid-row">
-          <div class="vid-col" style="flex:1.5">
-            <label>Movement Type</label>
-            <select id="vid-move-type" style="width:100%">
-              <option value="">-- None --</option>
-              <option value="pan">Pan (rotation)</option>
-              <option value="truck">Truck (slide)</option>
-              <option value="tilt">Tilt</option>
-              <option value="dolly">Dolly (in/out)</option>
-              <option value="zoom">Zoom (lens)</option>
-              <option value="orbit">Orbit</option>
-              <option value="crane">Crane shot</option>
-              <option value="static">Static (Locked)</option>
-            </select>
-          </div>
-          <div class="vid-col">
-            <label>Direction</label>
-            <div class="dpad-wrap">
-              <div class="dpad-row">
-                <button class="dpad-btn" data-dir="upward">↑</button>
-              </div>
-              <div class="dpad-row">
-                <button class="dpad-btn" data-dir="to the left">←</button>
-                <button class="dpad-btn" data-dir="to the right">→</button>
-              </div>
-              <div class="dpad-row">
-                <button class="dpad-btn" data-dir="downward">↓</button>
-              </div>
-            </div>
-          </div>
-          <div class="vid-col">
-            <label>Stabilization</label>
-            <div class="chip-group">
-              <button class="chip" data-stab="handheld">Handheld</button>
-              <button class="chip" data-stab="steadicam">Steadicam</button>
-              <button class="chip" data-stab="gimbal">Gimbal</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="vid-section">
-        <div class="vid-section-title">Motion & Physics</div>
-        <div class="vid-row">
-          <div class="vid-col">
-            <label>Motion Intensity (1-10)</label>
-            <input type="range" id="vid-motion" min="1" max="10" value="5" style="width:100%">
-          </div>
-          <div class="vid-col">
-            <label>Subject Action</label>
-            <select id="vid-action" style="width:100%">
-              <option value="">-- None --</option>
-              <option value="walking">Walking</option><option value="running">Running</option><option value="dancing">Dancing</option>
-              <option value="melting">Melting</option><option value="exploding">Exploding</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="vid-section">
-        <div class="vid-section-title">Temporal</div>
-        <div class="vid-row">
-          <div class="vid-col">
-            <label>Duration</label>
-            <div class="chip-group">
-              <button class="chip" data-dur="3s clip">3s</button>
-              <button class="chip" data-dur="4s clip">4s</button>
-              <button class="chip" data-dur="5s clip">5s</button>
-              <button class="chip" data-dur="8s clip">8s</button>
-              <button class="chip" data-dur="10s clip">10s</button>
-              <button class="chip" data-dur="seamless loop">Loop</button>
-            </div>
-          </div>
-          <div class="vid-col">
-            <label>Speed Style</label>
-            <div class="chip-group">
-              <button class="chip" data-spd="slow motion">Slow Mo</button>
-              <button class="chip" data-spd="real-time">Normal</button>
-              <button class="chip" data-spd="time-lapse">Time-lapse</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <span class="panel-label">Selected Presets <span id="preset-count" style="float:right; opacity:0.5"></span></span>
-      <div class="tags" id="tags"><div class="empty-hint">Select presets or build a camera setup.</div></div>
-    </div>
-
-    <div class="panel hidden" id="history-panel">
-      <span class="panel-label">Prompt History</span>
-      <div id="history-items" style="max-height:150px; overflow-y:auto; font-size:10px; font-family:'JetBrains Mono'"></div>
-    </div>
-  </div>
-
-  <div>
-    <div class="panel">
-      <span class="panel-label">Camera & Lens Builder</span>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
-        <select id="cam-brand"><option value="">Brand</option><option>Canon</option><option>Sony</option><option>Nikon</option><option>Fujifilm</option><option>RED</option><option>ARRI</option></select>
-        <select id="cam-model"><option value="">Model</option></select>
-        <select id="lens-focal"><option value="">Lens</option><option>24mm</option><option>35mm</option><option>50mm</option><option>85mm</option><option>Anamorphic</option></select>
-        <select id="lens-aperture"><option value="">Aperture</option><option>f/1.2</option><option>f/1.8</option><option>f/2.8</option><option>f/4.0</option><option>f/8.0</option></select>
-      </div>
-      <button class="btn accent" style="width:100%" id="btn-cam-add">+ Add Setup</button>
-    </div>
-
-    <div id="cat-tabs" style="display:flex; gap:4px; overflow-x:auto; margin-bottom:8px; padding-bottom:4px"></div>
-    <div class="panel" style="padding:0; overflow:hidden">
-      <input type="text" id="search" placeholder="Filter presets..." style="width:100%; border:none; border-bottom:1px solid #1e1e2a; padding:10px; background:transparent">
-      <div id="preset-list" style="max-height:400px; overflow-y:auto; padding:8px"></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<div class="settings-overlay" id="settings-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; display:none; align-items:center; justify-content:center">
-  <div class="panel" style="width:400px; background:#0d0d14">
-    <span class="panel-label">Settings</span>
-    <div style="display:flex; flex-direction:column; gap:12px">
-      <div><label style="font-size:9px; color:#555">Provider</label><select id="s-provider" style="width:100%"><option value="google">Google Gemini</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option></select></div>
-      <div><label style="font-size:9px; color:#555">API Key</label><input type="password" id="s-apikey" style="width:100%; padding:8px"></div>
-      <button class="btn accent" id="btn-save-settings">Save Settings</button>
-      <button class="btn" id="btn-settings-close">Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// === DATA & STATE ===
-var GENERATORS = {general:{label:"General"}, midjourney:{label:"Midjourney"}, stablediffusion:{label:"Stable Diffusion"}, dalle:{label:"DALL-E"}, flux:{label:"Flux"}};
-var PRESETS = {Lighting:{color:"#f7c97e",items:[{label:"Golden Hour",value:"golden hour, warm light"},{label:"Cinematic",value:"cinematic lighting, dramatic shadows"}]}, Style:{color:"#f0a6ca",items:[{label:"Cyberpunk",value:"cyberpunk aesthetic, neon"},{label:"Minimalist",value:"minimalist, clean composition"}]}};
-var sel = []; var mode = "image";
-var settings = JSON.parse(localStorage.getItem("ps_settings") || '{"provider":"google","apiKey":""}');
-
-var $ = function(s){return document.querySelector(s)};
-
-// === UI LOGIC ===
-function setMode(m) {
-  mode = m;
-  $("#btn-mode-img").className = m==="image" ? "mode-btn active-img" : "mode-btn";
-  $("#btn-mode-vid").className = m==="video" ? "mode-btn active-vid" : "mode-btn";
-  $("#img-options").classList.toggle("hidden", m==="video");
-  $("#vid-controls").classList.toggle("hidden", m==="image");
-  $("#editor").placeholder = m==="video" ? "Describe your video scene..." : "Describe your image idea...";
-}
-
-$("#btn-mode-img").onclick = function(){setMode("image")};
-$("#btn-mode-vid").onclick = function(){setMode("video")};
-
-// === API PARSING (BUG FIX) ===
-function safeParse(d, provider) {
-  try {
-    if (provider === "google") {
-      return d?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || "";
-    }
-    if (provider === "openai") {
-      return d?.choices?.[0]?.message?.content || "";
-    }
-    if (provider === "anthropic") {
-      return d?.content?.find(c => c.type === "text")?.text || "";
-    }
-  } catch(e) { console.error("Parse error", e); }
-  return "";
-}
-
-// === BEAUTIFY LOGIC ===
-$("#btn-beautify").onclick = function() {
-  var t = $("#editor").value.trim();
-  if(!t && !sel.length) return toast("Write something first!");
-  
-  if(!settings.apiKey) {
-    $("#editor").value = t + (sel.length ? ", " + sel.map(s=>s.value).join(", ") : "");
-    return toast("Local mode (No API key)");
-  }
-
-  this.classList.add("btn-loading");
-  this.textContent = "Beautifying...";
-
-  // Simple fetch simulation (Replace with your actual multi-provider fetch logic)
-  var body = {
-    contents: [{parts:[{text: "Beautify this prompt: " + t + " with presets: " + sel.map(s=>s.value).join(", ")}]}]
-  };
-
-  fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + settings.apiKey, {
-    method: "POST",
-    body: JSON.stringify(body)
-  })
-  .then(r => r.json())
-  .then(data => {
-    var result = safeParse(data, settings.provider);
-    if(result) $("#editor").value = result;
-    toast("Beautified!");
-  })
-  .catch(e => toast("Error: " + e.message))
-  .finally(() => {
-    this.classList.remove("btn-loading");
-    this.textContent = "✦ Beautify";
-  });
-};
-
-// === UTILS ===
-function toast(m){
-  var el=$("#toast"); el.textContent=m; el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"), 2000);
-}
-
-$("#btn-clear").onclick = function() {
-  $("#editor").value = "";
-  sel = [];
-  renderTags();
-};
-
-$("#btn-copy").onclick = function() {
-  navigator.clipboard.writeText($("#editor").value);
-  toast("Copied to clipboard!");
-};
-
-// Toggle Settings
-$("#btn-settings").onclick = () => $("#settings-overlay").style.display="flex";
-$("#btn-settings-close").onclick = () => $("#settings-overlay").style.display="none";
-$("#btn-save-settings").onclick = () => {
-  settings.provider = $("#s-provider").value;
-  settings.apiKey = $("#s-apikey").value;
-  localStorage.setItem("ps_settings", JSON.stringify(settings));
-  toast("Settings saved!");
-  $("#settings-overlay").style.display="none";
-};
-
-// Chip Logic
-document.querySelectorAll(".chip").forEach(c => {
-  c.onclick = function() {
-    this.classList.toggle("c-active");
-    // Add logic to update prompt or state here
-  };
-});
-
-// Render initial state
-setMode("image");
-</script>
-</body>
-</html>
+/* Presets & Filtering */
+.cat-tabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;padding-bottom:4px;scrollbar-width:none}
+.cat-tab{padding:5px 12px;border-radius:6px;background:transparent;border:1px solid #1e1e2a;color:#555;font-size:10px;cursor:pointer;white-space:nowrap}
+.cat-tab.active{border-color:rgba(160,210,219,0.3);color:#a0d2db;background:rgba(160,210,219,0.05)}
+.preset-list{max-height:350px;overflow-y:auto;padding-right:4px}
+.preset-item{display:block;width:100%;text-align:left;padding:8px;margin-bottom:4px;background:#111118;border:1px solid #1e1e2a;border-radius:6px;cursor:pointer}
+.preset-item:hover{border-color:rgba(240,166,202,0.3)}
+.preset-item-label{font-size:11px;font-weight:600;
